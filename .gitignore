@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+# Streamlit
+.streamlit/secrets.toml
+# OS
+.DS_Store
+# Input workbook (binary) is uploaded via the GitHub web UI, not the snapshot push
+*.xlsx

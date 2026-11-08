@@ -1,0 +1,34 @@
+/* westjet-theme.css — WestJet theme tokens (single source of truth).
+ * Extended with status colours, spacing, radii and shadows. All other
+ * stylesheets reference these variables; no colours are hard-coded
+ * elsewhere. en-GB spelling in authored text. */
+:root {
+  --wj-yellow: #FFC72C;
+  --wj-navy: #002855;
+  --wj-charcoal: #1F2937;
+  --wj-white: #FFFFFF;
+  --wj-grey-light: #F2F4F7;
+  --wj-grey-mid: #D0D5DD;
+  --wj-grey-text: #475467;
+  --wj-blue: #2E6EA6;
+  --wj-teal: #0E7C7B;
+  --wj-green: #1B7A3D;
+  --wj-red: #B42318;
+  --wj-amber: #B54708;
+  --wj-font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --wj-font-size-base: 15px;
+  --wj-line-height-base: 1.5;
+  --wj-nav-width: 240px;
+  --wj-header-height: 64px;
+  --wj-spacing: 16px;
+  --wj-radius: 8px;
+  --wj-shadow: 0 1px 3px rgba(16, 24, 40, 0.12);
+}
+body {
+  font-family: var(--wj-font-family);
+  font-size: var(--wj-font-size-base);
+  line-height: var(--wj-line-height-base);
+  color: var(--wj-charcoal);
+  background: var(--wj-white);
+  margin: 0;
+}

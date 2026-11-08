@@ -1,0 +1,14 @@
+# Streamlit theme — WestJet Enterprise Aviation Control Tower.
+# Palette (see README.md theme note):
+#   primary yellow #FFC72C, deep navy #002855, dark charcoal #1F2937,
+#   white #FFFFFF, light neutral grey #F2F4F7,
+#   restrained blue accent #2E6EA6, restrained teal accent #0E7C7B.
+# Yellow is used strategically (active navigation, KPI highlights, key
+# actions) and never excessively.
+
+[theme]
+primaryColor = "#FFC72C"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F2F4F7"
+textColor = "#1F2937"
+font = "sans serif"

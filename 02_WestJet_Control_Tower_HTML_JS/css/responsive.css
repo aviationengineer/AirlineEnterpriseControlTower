@@ -1,0 +1,30 @@
+/* responsive.css — desktop, laptop, tablet. Desktop executive use is
+ * prioritised; grids reflow instead of scrolling horizontally. */
+@media (max-width: 1280px) {
+  .kpi-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  .chart-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 1024px) {
+  :root { --wj-nav-width: 200px; }
+  .main-nav { flex-basis: 200px; width: 200px; }
+  .chart-grid { grid-template-columns: 1fr; }
+  .chart-box { height: 260px; }
+}
+@media (max-width: 768px) {
+  .app-shell { flex-direction: column; }
+  .main-nav {
+    width: 100%; flex: none; min-height: 0; display: flex; flex-wrap: wrap;
+    padding: 6px; gap: 4px;
+  }
+  .nav-link { border-left: none; border-radius: 4px; padding: 7px 10px; }
+  .content { padding: 12px; }
+  .kpi-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+  .sim-input { grid-template-columns: 120px 1fr 60px; }
+  .app-header { padding: 10px 14px; }
+  .data-status-wrap { padding: 0 12px; }
+}
+@media (max-width: 480px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+  .sim-groups { grid-template-columns: 1fr; }
+  .kpi-value { font-size: 1.35rem; }
+}

@@ -1,0 +1,7 @@
+# WestJet Enterprise Aviation Control Tower — Streamlit package.
+# Pinned versions (verified with the project venv .venv, Python 3.12).
+streamlit==1.67.0
+pandas==3.1.1
+openpyxl==3.1.5
+plotly==7.1.0
+pytest==9.2.0
