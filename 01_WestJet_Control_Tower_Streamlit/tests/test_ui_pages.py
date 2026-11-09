@@ -32,6 +32,11 @@ TIMEOUT = 120
 
 def _run(page_label: str | None = None, **session_state) -> AppTest:
     at = AppTest.from_file(APP)
+    # Password gate: these tests run as an authenticated session (test
+    # secret + session flag). The gate itself is covered by
+    # tests/test_auth.py and the boot test in tests/test_analytics.py.
+    at.secrets["APP_PASSWORD"] = "test-password"
+    at.session_state["_auth_authenticated"] = True
     if page_label is not None:
         at.session_state["nav_page"] = page_label
     for key, value in session_state.items():

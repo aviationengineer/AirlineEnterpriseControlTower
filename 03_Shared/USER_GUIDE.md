@@ -41,6 +41,11 @@ number.
 - **Streamlit app:** see `DEPLOYMENT.md` §2 — from the Streamlit
   package folder, run `.venv/bin/streamlit run app.py`, then open
   http://localhost:8501.
+- **Sign-in (Streamlit app only):** the app asks for a shared
+  password before any page loads. The password is set by the app
+  owner in Streamlit Cloud Secrets (`APP_PASSWORD`); sign out from
+  the sidebar button when done. The HTML/JS app has no sign-in. See
+  `01_WestJet_Control_Tower_Streamlit/README.md` (Authentication).
 - **HTML/JS app:** see `DEPLOYMENT.md` §3 — from the HTML/JS
   package folder, run `python3 -m http.server 8000`, then open
   http://localhost:8000/. Do not open `index.html` directly: the

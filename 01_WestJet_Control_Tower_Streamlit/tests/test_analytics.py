@@ -146,11 +146,21 @@ def test_inject_without_streamlit_returns_false(monkeypatch):
 
 
 def test_app_boots_clean_with_tracking_off():
-    """The real app runs with no Measurement ID configured: no exception,
-    and the GA loader is never injected (no gtag URL in the output)."""
+    """The real app runs with a test password configured: sign in through
+    the gate, the dashboard boots, and the GA loader is never injected
+    (no Measurement ID configured)."""
     at = AppTest.from_file(APP, default_timeout=TIMEOUT)
+    at.secrets["APP_PASSWORD"] = "test-password"
     at.run()
     assert not at.exception, f"app raised: {at.exception}"
+    # The gate is showing: a password field and a Sign in button, and
+    # no dashboard content yet.
+    assert len(at.text_input) == 1
+    assert len(at.button) == 1
+    at.text_input(key="auth_password").set_value("test-password").run()
+    assert not at.exception, f"app raised: {at.exception}"
+    at.button(key="auth_sign_in").click().run()
+    assert not at.exception, f"app raised after sign-in: {at.exception}"
     rendered = " ".join(
         getattr(el, "value", "") for el in list(at.markdown) + list(at.caption)
         if isinstance(getattr(el, "value", ""), str))

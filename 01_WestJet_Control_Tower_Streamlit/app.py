@@ -14,6 +14,7 @@ import importlib
 import streamlit as st
 
 from analytics import inject_analytics
+from auth import require_auth, sign_out
 from components.filters import render_global_filters
 from components.status import (
     data_status_banner,
@@ -75,6 +76,12 @@ def _load_or_stop():
 
 
 def main() -> None:
+    # Password gate (shared password, fail closed): runs before any data
+    # loading or analytics, so unauthenticated visitors are neither
+    # tracked nor trigger workbook loads.
+    if not require_auth():
+        return
+
     # Theme: session state (default WestJet); the Theme & Branding page
     # sets theme_id / custom_themes. The workbook data stays WestJet
     # synthetic data whatever the theme — only the branding changes.
@@ -92,6 +99,9 @@ def main() -> None:
     validation_expander(report)
 
     st.sidebar.title(f"{theme['airline']} Control Tower")
+    if st.sidebar.button("Sign out", key="auth_sign_out"):
+        sign_out()
+        st.rerun()
     page_label = st.sidebar.radio(
         "Navigate", PAGE_LABELS, key="nav_page")
     # Google Analytics (GA4): page_view on load, page_navigation event when

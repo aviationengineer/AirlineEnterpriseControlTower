@@ -26,6 +26,16 @@ APP = str(PACKAGE_DIR / "app.py")
 TIMEOUT = 120
 
 
+def _authenticated_app() -> AppTest:
+    """AppTest signed in through the password gate (test secret +
+    session flag). The gate itself is covered by tests/test_auth.py
+    and the boot test in tests/test_analytics.py."""
+    at = AppTest.from_file(APP)
+    at.secrets["APP_PASSWORD"] = "test-password"
+    at.session_state["_auth_authenticated"] = True
+    return at
+
+
 def test_starter_themes_present():
     """8 starter airlines, WestJet first and the default."""
     assert len(THEMES) == 8
@@ -85,7 +95,7 @@ def test_theme_css_carries_the_theme_colours():
 def test_theme_page_renders_and_lists_all_themes():
     """Theme & Branding page renders with no exceptions and lists the
     starter airlines."""
-    at = AppTest.from_file(APP)
+    at = _authenticated_app()
     at.session_state["nav_page"] = "Theme & Branding"
     at.run(timeout=TIMEOUT)
     assert list(at.exception) == []
@@ -102,7 +112,7 @@ def test_theme_page_renders_and_lists_all_themes():
 def test_selecting_a_theme_changes_header_and_css():
     """Emirates selected via session state: the header shows Emirates and
     the injected CSS carries the Emirates primary colour."""
-    at = AppTest.from_file(APP)
+    at = _authenticated_app()
     at.session_state["nav_page"] = "Executive Overview"
     at.session_state["theme_id"] = "emirates"
     at.run(timeout=TIMEOUT)
@@ -122,7 +132,7 @@ def test_custom_theme_in_session_state_renders():
         "logo_url": "", "notes": "Test theme.",
     }
     assert validate_theme(custom) == []
-    at = AppTest.from_file(APP)
+    at = _authenticated_app()
     at.session_state["nav_page"] = "Theme & Branding"
     at.session_state["theme_id"] = "test-airways"
     at.session_state["custom_themes"] = {"test-airways": custom}

@@ -210,6 +210,42 @@ Note: Streamlit Cloud's built-in "App analytics" (view counts in the
 Cloud dashboard) is separate from Google Analytics; this integration
 does not affect it.
 
+## Authentication (shared password)
+
+The Streamlit app is gated behind a single shared password. Until a
+password is set, nobody can use the app — the gate fails closed (see
+below). The HTML/Pages version is NOT gated by this change.
+
+**Setup:** in Streamlit Cloud, open this app → Manage app → Settings →
+Secrets and add:
+
+```
+APP_PASSWORD = "your-chosen-password"
+```
+
+The password takes effect on the next run; remove the secret to lock
+the app again. The password is never committed to the repo and never
+passes through chat — choose it yourself and enter it in Cloud
+Secrets. The gate lives in `auth.py` (`require_auth`, called first in
+`app.py` before any data loading or analytics); tests are in
+`tests/test_auth.py`.
+
+**How it works:** visitors see a sign-in screen (password field +
+Sign in button). A correct password signs the session in (remembered
+until sign-out); a wrong one shows only "Incorrect password". A
+**Sign out** button in the sidebar ends the session. Unauthenticated
+visitors are not tracked and never trigger a workbook load.
+
+**Fail closed:** if `APP_PASSWORD` is not set, the app shows
+"Authentication is not configured — set APP_PASSWORD in this app's
+Streamlit Cloud Secrets" and stops. It never falls back to open
+access.
+
+**Honest limits:** this is a SHARED password — one password for
+everyone who knows it, with no per-user identity and no brute-force
+lockout. It gates the app's pages only: the workbook and data live in
+the public repo, so the data files themselves are not protected by it.
+
 ## Structure map
 - `app.py` — entry point, routing, layout, navigation
 - `config.py` — configuration and page registry
@@ -219,7 +255,7 @@ does not affect it.
 - `services/` — KPI engine, scenario engine, comparison engine, data quality
 - `dashboards/` — the 18 dashboard pages
 - `components/` — KPI card, charts, filters, status, tables
-- `tests/` — pytest suite (89 tests)
+- `tests/` — pytest suite (99 tests)
 - `requirements.txt` — dependencies, pinned (streamlit==1.67.0,
   pandas==3.1.1, openpyxl==3.1.5, plotly==7.1.0, pytest==9.2.0)
 - `.venv/` — project virtual environment (Python 3.12.3)
