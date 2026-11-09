@@ -13,6 +13,7 @@ import importlib
 
 import streamlit as st
 
+from analytics import inject_analytics
 from components.filters import render_global_filters
 from components.status import (
     data_status_banner,
@@ -22,6 +23,7 @@ from components.status import (
 )
 from config import (
     DEFAULT_THEME_ID,
+    GA_MEASUREMENT_ID,
     PAGE_KEY_BY_LABEL,
     PAGE_LABELS,
     build_context,
@@ -92,6 +94,10 @@ def main() -> None:
     st.sidebar.title(f"{theme['airline']} Control Tower")
     page_label = st.sidebar.radio(
         "Navigate", PAGE_LABELS, key="nav_page")
+    # Google Analytics (GA4): page_view on load, page_navigation event when
+    # the sidebar page changes. Does nothing until GA_MEASUREMENT_ID is set
+    # in Streamlit secrets (config constant is the empty fallback).
+    inject_analytics(config_default=GA_MEASUREMENT_ID, page_name=page_label)
     st.sidebar.markdown("---")
     filters = render_global_filters(model, workbook.scenarios)
 

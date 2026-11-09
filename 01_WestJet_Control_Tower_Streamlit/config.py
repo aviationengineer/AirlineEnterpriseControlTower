@@ -79,6 +79,17 @@ THEME_HEX_FIELDS: list[str] = [
 
 DEFAULT_THEME_ID = "westjet"
 
+# ---------------------------------------------------------------------------
+# Analytics (Google Analytics 4) — see analytics.py.
+#
+# The Measurement ID is read from Streamlit secrets (GA_MEASUREMENT_ID)
+# first; this constant is the fallback and stays empty until a GA4 property
+# exists. Never commit a real Measurement ID here — set it in Streamlit
+# Cloud secrets instead (app -> Manage app -> Settings -> Secrets).
+# ---------------------------------------------------------------------------
+
+GA_MEASUREMENT_ID = ""
+
 # Reference store for the themes (human-readable; the apps bundle the
 # same values). Filled in once the sheet is created.
 THEME_SHEET_ID = "14JMUnluNef0wlNNcdCkZ6YfkUTBgv7JP09qcRKARTzY"

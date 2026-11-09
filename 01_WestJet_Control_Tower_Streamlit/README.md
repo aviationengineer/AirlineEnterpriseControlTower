@@ -124,17 +124,19 @@ custom airlines; branding only, data stays WestJet synthetic).
 
 ## Verification
 ```sh
-.venv/bin/python -m pytest tests/ -q    # 79 tests
+.venv/bin/python -m pytest tests/ -q    # 89 tests
 .venv/bin/streamlit run app.py --server.port 8502   # then curl http://localhost:8502/ → HTTP 200
 ```
-Result on 2026-11-08: **79 passed**. The suite covers the loader
+Result on 2026-11-08: **89 passed**. The suite covers the loader
 (workbook loading, missing sheet/column, invalid values), the KPI
 engine (Load Factor, RASK, CASM, Yield, D0, D15, Operating Margin,
 MRO and Data Platform metrics), the scenario engine (Fuel +20%,
 Demand +10%/−10%, Maintenance Cost +12%, Labour Cost +7%, Yield +5%
 and the other presets), the validator (DQ/BR rules, quirks, score and
 status), the theme system (8 starter themes, validation, custom-add
-rejection, theme switching), and the UI pages (all 19 pages render,
+rejection, theme switching), analytics (GA4 off by default, snippet
+content, ID validation, secrets precedence, once-per-session loader,
+page-change events), and the UI pages (all 19 pages render,
 filters, reset).
 Spot values asserted include Dec 2026 Load Factor 0.798508, RASK
 0.128060 and Total Revenue 467,101,901, and the S001/S002 preset
@@ -170,6 +172,43 @@ and never excessively.
 Streamlit theme tokens live in `.streamlit/config.toml` (WestJet
 fallback; the selected theme is injected as CSS at runtime).
 
+## Analytics (Google Analytics 4)
+
+The app reports anonymous usage to Google Analytics 4 (GA4) once a
+Measurement ID is configured — until then tracking is completely off and
+the app behaves exactly as before.
+
+**What is tracked:** a `page_view` when the app loads, plus a
+`page_navigation` event (with the page name) whenever the sidebar page
+changes. No personal data is sent — no user IDs, no custom dimensions,
+nothing that identifies a visitor. GA4 anonymises IP addresses by
+default. The injection lives in `analytics.py` (`inject_analytics`,
+called once in `app.py` after the page is chosen); the fallback
+Measurement ID constant is `GA_MEASUREMENT_ID` in `config.py` (empty by
+default). Tests are in `tests/test_analytics.py`.
+
+**Setup (one GA4 property, three streams):** create one GA4 property
+for the three Streamlit apps at https://analytics.google.com, then add
+one web data stream per app URL
+(`fleet-intelligence-2026.streamlit.app`,
+`global-fleet-intelligence.streamlit.app`,
+`aviationenterprisect.streamlit.app`). Each stream has its own
+Measurement ID (`G-XXXXXXXXXX`). In Streamlit Cloud, open the app →
+Manage app → Settings → Secrets and add:
+
+```
+GA_MEASUREMENT_ID = "G-XXXXXXXXXX"
+```
+
+(using this app's own stream ID). Tracking starts on the next run;
+remove the secret to switch it off again. The ID can also be set as the
+`GA_MEASUREMENT_ID` constant in `config.py`, but secrets are preferred
+— never commit a real Measurement ID to the repo.
+
+Note: Streamlit Cloud's built-in "App analytics" (view counts in the
+Cloud dashboard) is separate from Google Analytics; this integration
+does not affect it.
+
 ## Structure map
 - `app.py` — entry point, routing, layout, navigation
 - `config.py` — configuration and page registry
@@ -179,7 +218,7 @@ fallback; the selected theme is injected as CSS at runtime).
 - `services/` — KPI engine, scenario engine, comparison engine, data quality
 - `dashboards/` — the 18 dashboard pages
 - `components/` — KPI card, charts, filters, status, tables
-- `tests/` — pytest suite (69 tests)
+- `tests/` — pytest suite (89 tests)
 - `requirements.txt` — dependencies, pinned (streamlit==1.67.0,
   pandas==3.1.1, openpyxl==3.1.5, plotly==7.1.0, pytest==9.2.0)
 - `.venv/` — project virtual environment (Python 3.12.3)
