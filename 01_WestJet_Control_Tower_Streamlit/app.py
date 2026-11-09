@@ -106,6 +106,9 @@ def main() -> None:
         f"({report.data_quality_score:.1f}/100)")
     st.sidebar.caption("SYNTHETIC DATA — synthetic/demo values only; "
                        "not actual WestJet performance.")
+    st.sidebar.markdown(
+        "[Open the HTML version]"
+        "(https://aviationengineer.github.io/AirlineEnterpriseControlTower/)")
 
     page_key = PAGE_KEY_BY_LABEL[page_label]
     module_name = dict(
