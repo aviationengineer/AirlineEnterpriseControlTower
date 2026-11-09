@@ -1,0 +1,42 @@
+# Deploy the standalone HTML/JS control tower to GitHub Pages.
+# Source: 02_WestJet_Control_Tower_HTML_JS/ in this repo.
+# Live URL (once Pages is enabled with source "GitHub Actions"):
+# https://aviationengineer.github.io/AirlineEnterpriseControlTower/
+# Requires: repo Settings -> Pages -> Build and deployment -> Source: GitHub Actions.
+name: Deploy HTML app to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '02_WestJet_Control_Tower_HTML_JS/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload HTML app
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '02_WestJet_Control_Tower_HTML_JS'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
