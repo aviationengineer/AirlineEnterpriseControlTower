@@ -104,7 +104,7 @@ the brief and workbook).
   (unit "$/ASM", "$/RPM", "$/hour", "$/tonne", "$/pax" in
   `KPI_Definitions`). No currency is named in the workbook; do not
   assume CAD or USD in the UI — display "$" as supplied.
-- **Page numbering** follows brief §9 (18 pages).
+- **Page numbering** follows brief §9 (18 pages) plus the Theme & Branding page (19th).
 
 ## 2. The 18 workbook-defined KPIs
 

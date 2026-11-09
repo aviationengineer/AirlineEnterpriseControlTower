@@ -70,7 +70,7 @@ def _button(at: AppTest, label: str):
 
 @pytest.mark.parametrize("page_label", PAGE_LABELS)
 def test_all_pages_render_without_exceptions(page_label):
-    """All 18 pages render with zero exceptions (task acceptance check)."""
+    """All 19 pages render with zero exceptions (task acceptance check)."""
     at = _run(page_label)
     assert list(at.exception) == []
     text = _markdown_text(at)

@@ -2,7 +2,7 @@
 
 ## Purpose
 Standalone browser implementation of the WestJet Enterprise Aviation
-Intelligence & Control Tower: the same 18 dashboard pages, data model, KPI
+Intelligence & Control Tower: the same 19 dashboard pages, data model, KPI
 definitions, formulas, targets, comparison logic, scenario logic,
 data-quality rules, and formatting rules as the Streamlit package, loading
 converted JSON data generated from the input workbook
@@ -14,7 +14,7 @@ page carries a visible **SYNTHETIC DATA** badge, and every scenario output
 is labelled **SIMULATED**.
 
 ## Status
-Implemented (2026-11-08). All 18 pages, the KPI engine, the scenario
+Implemented (2026-11-08). All 19 pages, the KPI engine, the scenario
 engine, comparison logic, global filters, validation display and CSV
 exports are built. Verified against the Python ground truth — see
 [Verification](#verification).
@@ -62,7 +62,7 @@ a converted-JSON upload control.
 - `tests/` — test.js (Node verification vs Python ground truth),
   smoke.js (headless render smoke test, DOM stub, no browser needed)
 
-## Pages (18)
+## Pages (19)
 Executive Overview (14 KPI cards: current, previous, YoY %, target,
 variance to target, mini trend, status) · Flight Operations · MRO / Tech
 Ops (11 top KPIs + warning states) · Passenger / Commercial · Revenue
@@ -70,7 +70,9 @@ Management · Network / Route Profitability (route ranking) · Crew / People ·
 Baggage · Cargo · Airport / Ground · Fuel (with live S001 scenario support) ·
 Finance · Ancillary Revenue · Data Platform (10 primary KPIs + executive
 summary) · AI / Data Products · Data Governance · Scenario Simulator ·
-Scenario Outcome (Actual vs Baseline vs Simulated).
+Scenario Outcome (Actual vs Baseline vs Simulated) · Theme & Branding
+(8 starter airline themes + custom airlines; branding only, data stays
+WestJet synthetic).
 
 ## Key behaviours and caveats (all deliberate, per the specs)
 - **No Plan/Forecast data exists** in the workbook: the Actual/Plan/
@@ -138,9 +140,9 @@ Scenario Outcome (Actual vs Baseline vs Simulated).
 
 ## Verification
 ```sh
-for f in js/*.js js/dashboards/*.js tests/*.js; do node --check "$f"; done   # 28 files
-node tests/test.js    # 18 checks
-node tests/smoke.js   # renders all 18 pages headlessly
+for f in js/*.js js/dashboards/*.js tests/*.js; do node --check "$f"; done   # 30 files
+node tests/test.js    # 23 checks
+node tests/smoke.js   # renders all 19 pages headlessly
 ```
 `tests/test.js` loads `data/sample-data.json`, runs the JS KPI/scenario
 engines and asserts against the Python-generated ground truth:
@@ -153,17 +155,33 @@ engines and asserts against the Python-generated ground truth:
   $1,116,244,265, margin −4.20pp; Demand +10%: revenue impact
   $2,433,905,160, Load Factor 0.878889);
 - comparison (Dec 2026 YoY), validation block (Warning, 5 warnings),
-  input clamping, route ranking.
-Result on 2026-11-08: **all 18 checks pass, no mismatches found**
-(`node --check`: 28/28 files pass). `tests/smoke.js` renders all 18
+  input clamping, route ranking;
+- theme system (8 starter themes validate, `applyTheme` returns the
+  CSS variables, custom-add validation rejects bad hex / URL / IATA).
+Result on 2026-11-08: **all 23 checks pass, no mismatches found**
+(`node --check`: 30/30 files pass). `tests/smoke.js` renders all 19
 pages, applies a Fuel +20% scenario and checks the Simulator/Outcome
-pages, with no runtime errors. The Streamlit package independently
-verifies the same ground truth (pytest, 69 tests) — see its README.
+pages, applies a theme (Emirates) and checks the header brand follows
+it, with no runtime errors. The Streamlit package independently
+verifies the same ground truth (pytest, 79 tests) — see its README.
 One item is **not** verified: a real browser render of the HTML app
 (no live-browser access in the verification pass); the headless smoke
 test covers page rendering without a browser.
 
 ## Theme
+Default theme is WestJet (tokens below, shared by both packages).
+The Theme & Branding page (19th page) offers 8 starter airline themes
+— WestJet, Air Canada, Emirates, Qatar Airways, Lufthansa, British
+Airways, Delta Air Lines, Air France — plus a form to add a custom
+airline. Themes live in `data/themes.json`, loaded at startup by
+`js/theme.js` (`WJ.theme`); the choice lives in `localStorage`
+(`wj-theme-id`, custom themes in `wj-custom-themes`). Logos are remote
+Wikimedia Commons URLs, never files in the repo. The starter themes are
+also kept in the “Airline Themes & Branding” Google Sheet — see
+`03_Shared/THEME_SYSTEM.md` for the full system (fields, persistence
+limits, logo policy, how to add an airline). Theming changes branding
+only; the data stays WestJet synthetic data.
+
 WestJet theme tokens (shared by both packages):
 - Primary yellow: #FFC72C
 - Deep navy: #002855
@@ -173,6 +191,6 @@ WestJet theme tokens (shared by both packages):
 - Restrained blue accent: #2E6EA6
 - Restrained teal accent: #0E7C7B
 Yellow is used strategically (active navigation, KPI highlights, key actions)
-and never excessively. No other airline branding is used anywhere.
+and never excessively.
 
 Theme tokens live in `css/westjet-theme.css` as CSS variables.

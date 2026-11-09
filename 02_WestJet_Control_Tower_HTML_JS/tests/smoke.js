@@ -12,6 +12,7 @@ const vm = require('vm');
 
 const root = path.join(__dirname, '..');
 const data = JSON.parse(fs.readFileSync(path.join(root, 'data', 'sample-data.json'), 'utf8'));
+const themesData = JSON.parse(fs.readFileSync(path.join(root, 'data', 'themes.json'), 'utf8'));
 
 class El {
   constructor() { this.innerHTML = ''; this.hidden = false; this.value = ''; this.style = {}; this.parentElement = null; }
@@ -20,6 +21,7 @@ class El {
   querySelector() { return null; }
   getAttribute() { return null; }
   setAttribute() {}
+  removeAttribute() {}
   appendChild() {}
   remove() {}
   insertAdjacentHTML() {}
@@ -32,7 +34,10 @@ global.location = { hash: '' };
 global.addEventListener = function () {};
 global.scrollTo = function () {};
 global.Chart = undefined; // CDN unavailable in the stub: charts degrade to tables
-global.fetch = async function () { return { ok: true, json: async () => JSON.parse(JSON.stringify(data)) }; };
+global.fetch = async function (url) {
+  if (String(url).includes('themes.json')) return { ok: true, json: async () => JSON.parse(JSON.stringify(themesData)) };
+  return { ok: true, json: async () => JSON.parse(JSON.stringify(data)) };
+};
 global.document = {
   readyState: 'complete',
   getElementById: (id) => getEl(id),
@@ -41,12 +46,13 @@ global.document = {
   createElement: () => new El(),
   addEventListener: () => {},
   body: new El(),
+  documentElement: { style: { _vars: {}, setProperty(k, v) { this._vars[k] = v; } } },
 };
 
 const files = ['js/data-loader.js', 'js/data-validator.js', 'js/kpi-engine.js', 'js/comparison-engine.js',
   'js/scenario-engine.js', 'js/charts.js', 'js/filters.js',
   ...fs.readdirSync(path.join(root, 'js', 'dashboards')).sort().map((f) => 'js/dashboards/' + f),
-  'js/app.js'];
+  'js/theme.js', 'js/app.js'];
 for (const f of files) {
   vm.runInThisContext(fs.readFileSync(path.join(root, f), 'utf8'), { filename: f });
 }
@@ -59,7 +65,7 @@ setTimeout(() => {
     assert.strictEqual(WJ.state.kpiFrame.length, 60, '60 monthly KPI rows');
     const pageEl = getEl('page');
     const pages = WJ.app.PAGES.map((p) => p[0]);
-    assert.strictEqual(pages.length, 18, '18 pages registered');
+    assert.strictEqual(pages.length, 19, '19 pages registered');
     for (const p of pages) {
       WJ.app.goTo(p);
       const html = pageEl.innerHTML;
@@ -67,6 +73,20 @@ setTimeout(() => {
       assert.ok(html.includes('SYNTHETIC DATA'), p + ': SYNTHETIC DATA badge');
       assert.ok(!html.includes('Skeleton only'), p + ': no skeleton text');
     }
+    // Theme & Branding page renders and the theme engine applies a theme.
+    WJ.app.goTo('theme');
+    assert.ok(pageEl.innerHTML.includes('Theme &amp; Branding'), 'theme page has title');
+    assert.ok(pageEl.innerHTML.includes('Emirates'), 'theme page lists Emirates');
+    assert.ok(pageEl.innerHTML.includes('Add a custom airline'), 'theme page has the add-custom form');
+    assert.strictEqual(WJ.theme.listThemes().length, 8, '8 starter themes loaded');
+    assert.strictEqual(WJ.theme.currentTheme().airline, 'WestJet', 'default theme is WestJet');
+    assert.strictEqual(getEl('brand-name').textContent, 'WESTJET', 'header brand is WestJet by default');
+    const vars = WJ.theme.applyTheme('emirates');
+    assert.strictEqual(vars['--wj-navy'], '#C8102E', 'Emirates primary applied');
+    assert.strictEqual(global.document.documentElement.style._vars['--wj-navy'], '#C8102E', 'CSS variable set on :root');
+    assert.strictEqual(getEl('brand-name').textContent, 'EMIRATES', 'header brand follows the theme');
+    WJ.theme.applyTheme('westjet');
+    assert.strictEqual(getEl('brand-name').textContent, 'WESTJET', 'header brand returns to WestJet');
     const execHtml = (() => { WJ.app.goTo('executive'); return pageEl.innerHTML; })();
     assert.ok(execHtml.includes('Load Factor'), 'executive has Load Factor card');
     assert.ok(execHtml.includes('467.1'), 'executive shows Dec 2026 Total Revenue ($467.1m)');
@@ -90,7 +110,7 @@ setTimeout(() => {
     assert.ok(getEl('header-stats').innerHTML.includes('SYNTHETIC DATA'), 'header has SYNTHETIC DATA badge');
     assert.ok(getEl('data-status').innerHTML.includes('Warning'), 'data status shows Warning');
     assert.ok(getEl('data-status').innerHTML.includes('Assets with Owner'), 'data status surfaces governance quirk');
-    console.log('smoke test passed: 18 pages render, simulator/outcome share state, no runtime errors.');
+    console.log('smoke test passed: 19 pages render, simulator/outcome share state, theme applies, no runtime errors.');
   } catch (e) {
     console.error('SMOKE TEST FAILED:', e);
     process.exit(1);

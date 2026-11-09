@@ -84,6 +84,24 @@
  * and turning tiny trend variations into giant spikes (seen 2026-11-08). */
 .sparkline-wrap { position: relative; height: 36px; margin-top: 8px; }
 .sparkline { width: 100%; height: 100%; display: block; }
+
+/* Theme & Branding: header logo and the theme picker page. The header,
+ * nav, buttons and KPI-card accents all read the --wj-* tokens, so a
+ * theme applied to :root re-skins the whole app. */
+.brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.brand-logo { max-height: 48px; max-width: 180px; flex: none; }
+.theme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 8px; }
+.theme-card { background: var(--wj-white); border: 1px solid var(--wj-grey-mid); border-top: 4px solid var(--wj-navy); border-radius: var(--wj-radius); padding: 12px 14px; text-align: left; cursor: pointer; font: inherit; color: inherit; box-shadow: var(--wj-shadow); }
+.theme-card:hover { outline: 2px solid var(--wj-yellow); }
+.theme-card.active { outline: 3px solid var(--wj-yellow); }
+.theme-card img { max-height: 40px; max-width: 180px; display: block; margin-bottom: 8px; }
+.theme-card strong { display: block; color: var(--wj-navy); font-size: 0.95rem; margin-bottom: 4px; }
+.theme-swatches { display: flex; gap: 6px; margin-top: 8px; }
+.theme-swatches span { width: 28px; height: 20px; border: 1px solid var(--wj-grey-mid); border-radius: 3px; display: inline-block; }
+.theme-note { display: block; font-size: 0.8rem; color: var(--wj-grey-text); margin-top: 8px; }
+.theme-form { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; align-items: end; }
+.theme-form label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--wj-navy); }
+.theme-form input { width: 100%; padding: 7px 9px; border: 1px solid var(--wj-grey-mid); border-radius: 4px; font: inherit; margin-top: 4px; box-sizing: border-box; }
 .panel {
   background: var(--wj-white); border: 1px solid var(--wj-grey-mid); border-radius: var(--wj-radius);
   padding: 14px 16px; margin-bottom: 16px; box-shadow: var(--wj-shadow); min-width: 0;

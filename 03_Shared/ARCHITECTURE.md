@@ -59,7 +59,7 @@ Each layer has one job:
 | KPI Calculation Engine | Compute the 18 workbook-defined KPIs from the canonical model, for one month and for any selected period | Compute a KPI inside a UI component; invent a KPI with no workbook column |
 | Scenario Engine | Apply preset scenarios and interactive inputs to a baseline and recompute the affected KPIs with the same formulas | Present a simulated value as actual performance |
 | Comparison Engine | Prior period, YoY, variance to target, and Actual vs Baseline vs Simulated comparison | Compare against a plan/forecast series that does not exist |
-| Control Tower (the two apps) | Render the 18 pages, the global filters, the DATA STATUS area, exports | Hard-code a KPI value, a date, or another airline's branding |
+| Control Tower (the two apps) | Render the 19 pages, the global filters, the DATA STATUS area, exports | Hard-code a KPI value, a date, or another airline's branding outside the theme system |
 
 ## 2. Package layouts (as built)
 
@@ -154,9 +154,9 @@ Each layer has one job:
 ├── assets/                   # Reserved for static assets (empty)
 └── tests/
     ├── test.js               # Node verification vs Python ground truth —
-    │                         # 18 checks, all passing
+    │                         # 23 checks, all passing
     └── smoke.js              # Headless render smoke test (DOM stub, no
-                              # browser needed) — renders all 18 pages
+                              # browser needed) — renders all 19 pages
 ```
 
 ### 2.3 Shared specification — `03_Shared/`
@@ -180,7 +180,7 @@ Each layer has one job:
 ├── ARCHITECTURE.md           # This document
 ├── SCENARIO_ENGINE.md        # Scenario engine reference (see §4)
 ├── DEPLOYMENT.md             # How to run, serve and deploy both apps
-└── USER_GUIDE.md             # How an executive uses the 18 pages
+└── USER_GUIDE.md             # How an executive uses the 19 pages
 ```
 
 ## 3. Data flow, step by step
@@ -292,7 +292,7 @@ One rule, one home. UI components never re-implement a rule.
 | Primary-source rule and known quirks | `data/transformer.py` (merge order and suffixes); `data/validator.py` (QUIRK warnings) | `js/kpi-engine.js` (same merge/suffix logic) | `DATA_MODEL.md` §7 |
 | Formatting (currency, %, pp, $/ASM, $/tonne, hours) | `models/kpi_model.py` (`KPI_FORMATS`, `format_kpi`) | `js/app.js` helpers (`U.fmt…`) | `KPI_DICTIONARY.md` §23 |
 | WestJet theme tokens | `config.py` constants; `.streamlit/config.toml` | `css/westjet-theme.css` (CSS variables) | Brief §17; project `README.md` |
-| Page registry (18 pages, order) | `config.py` (`PAGE_LABELS`, `PAGE_KEY_BY_LABEL`) | `js/app.js` | Brief §9 |
+| Page registry (19 pages: brief §9's 18 + Theme & Branding) | `config.py` (`PAGE_LABELS`, `PAGE_KEY_BY_LABEL`) | `js/app.js` | Brief §9 |
 
 ### 4.1 Known engine behaviours that look like quirks but are the spec
 
@@ -342,7 +342,7 @@ Equivalence is enforced by construction, not by convention:
    presets S001–S009 over the full 60-month baseline match
    `preset_results` exactly; plus comparison (Dec 2026 YoY),
    validation block, input clamping and route ranking. Result on
-   2026-11-08: **18/18 checks pass, no mismatches**. The Streamlit
+   2026-11-08: **23/23 checks pass, no mismatches**. The Streamlit
    side is covered by its own pytest suite (**69 tests pass**).
 4. **Same specs, same inputs.** Both packages read the same
    `03_Shared/` specifications, the same workbook targets, the same

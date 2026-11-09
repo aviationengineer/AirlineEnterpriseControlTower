@@ -203,10 +203,10 @@ and passed:
 
 | Check | Command (from the package folder) | Result |
 |---|---|---|
-| Streamlit pytest suite | `.venv/bin/python -m pytest tests/ -q` (from `01_…/`) | **69 passed** in ~25 s |
+| Streamlit pytest suite | `.venv/bin/python -m pytest tests/ -q` (from `01_…/`) | **79 passed** in ~30 s |
 | JS syntax | `for f in js/*.js js/dashboards/*.js tests/*.js; do node --check "$f"; done` (from `02_…/`) | **28/28 files pass** |
-| JS engine verification | `node tests/test.js` (from `02_…/`) | **18/18 checks pass** — JS KPI/scenario engines match the Python ground truth |
-| JS smoke test | `node tests/smoke.js` (from `02_…/`) | **Pass** — all 18 pages render headlessly, simulator/outcome share state, no runtime errors |
+| JS engine verification | `node tests/test.js` (from `02_…/`) | **23/23 checks pass** — JS KPI/scenario engines match the Python ground truth |
+| JS smoke test | `node tests/smoke.js` (from `02_…/`) | **Pass** — all 19 pages render headlessly, simulator/outcome share state, theme applies, no runtime errors |
 | Streamlit HTTP | `.venv/bin/streamlit run app.py --server.port 8502`, then `curl http://localhost:8502/` | **HTTP 200** |
 | HTML HTTP | `python3 -m http.server 8001` (from `02_…/`), then `curl` | **HTTP 200** for `/`, `/index.html` and `/data/sample-data.json` |
 

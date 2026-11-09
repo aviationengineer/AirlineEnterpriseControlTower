@@ -1,6 +1,6 @@
 """config.py — application configuration for the Streamlit control tower.
 
-Workbook path, the 18-page registry, WestJet theme constants, formatting
+Workbook path, the 19-page registry, WestJet theme constants, formatting
 helpers, the Executive Overview KPI list, KPI-category mapping, simulator
 input definitions, and the shared page-context builder.
 
@@ -56,7 +56,180 @@ APP_SUBTITLE = "Enterprise Aviation Control Tower"
 APP_TAGLINE = "Operations · Commercial · MRO · Finance · Data · AI"
 
 # ---------------------------------------------------------------------------
-# Page registry (brief section 9 — 18 pages, in order)
+# Themes / branding — the Theme & Branding page (19th page).
+#
+# Single source for the Streamlit app: THEMES below, data/themes.json in
+# the HTML/JS app, and the "Airline Themes & Branding" Google Sheet
+# (THEME_SHEET_URL) carry the same 8 airlines and the same values; see
+# 03_Shared/THEME_SYSTEM.md. Logos are remote URLs only (Wikimedia
+# Commons, verified HTTP 200) — no logo binaries live in the repo.
+# Colours are brand-inspired palettes chosen for this feature, not
+# official brand-guideline values.
+# ---------------------------------------------------------------------------
+
+THEME_FIELDS: list[str] = [
+    "airline", "iata", "primary", "secondary", "accent", "background",
+    "surface", "text", "logo_url", "notes",
+]
+
+# Colour fields that must be #RRGGBB hex.
+THEME_HEX_FIELDS: list[str] = [
+    "primary", "secondary", "accent", "background", "surface", "text",
+]
+
+DEFAULT_THEME_ID = "westjet"
+
+# Reference store for the themes (human-readable; the apps bundle the
+# same values). Filled in once the sheet is created.
+THEME_SHEET_ID = "14JMUnluNef0wlNNcdCkZ6YfkUTBgv7JP09qcRKARTzY"
+THEME_SHEET_URL = "https://docs.google.com/spreadsheets/d/14JMUnluNef0wlNNcdCkZ6YfkUTBgv7JP09qcRKARTzY"
+
+THEMES: dict[str, dict[str, str]] = {
+    "westjet": {
+        "airline": "WestJet", "iata": "WS",
+        "primary": "#002855", "secondary": "#0E7C7B",
+        "accent": "#FFC72C", "background": "#FFFFFF",
+        "surface": "#F2F4F7", "text": "#1F2937",
+        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/1/16/WestJetLogo2018.svg",
+        "notes": "Default theme. WestJet navy, teal and yellow — "
+                 "the control tower's original palette.",
+    },
+    "air-canada": {
+        "airline": "Air Canada", "iata": "AC",
+        "primary": "#E31837", "secondary": "#1A1A1A",
+        "accent": "#FF6B6B", "background": "#FFFFFF",
+        "surface": "#F2F4F7", "text": "#1F2937",
+        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/2/24/Air_Canada_2017.svg",
+        "notes": "Brand-inspired red and black palette.",
+    },
+    "emirates": {
+        "airline": "Emirates", "iata": "EK",
+        "primary": "#C8102E", "secondary": "#A67C37",
+        "accent": "#D4A017", "background": "#FFFFFF",
+        "surface": "#F7F3EC", "text": "#1F2937",
+        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/1/1d/Emirates_Logo.svg",
+        "notes": "Brand-inspired red and gold palette.",
+    },
+    "qatar-airways": {
+        "airline": "Qatar Airways", "iata": "QR",
+        "primary": "#5C0632", "secondary": "#7A1E4A",
+        "accent": "#C9A227", "background": "#FFFFFF",
+        "surface": "#F7F2F5", "text": "#1F2937",
+        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/7/75/Qatar_Airways_logo.svg",
+        "notes": "Brand-inspired burgundy and gold palette.",
+    },
+    "lufthansa": {
+        "airline": "Lufthansa", "iata": "LH",
+        "primary": "#05164D", "secondary": "#FFAD00",
+        "accent": "#FFAD00", "background": "#FFFFFF",
+        "surface": "#F2F4F7", "text": "#1F2937",
+        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/b/b8/Lufthansa_Logo_2018.svg",
+        "notes": "Brand-inspired dark blue and yellow palette.",
+    },
+    "british-airways": {
+        "airline": "British Airways", "iata": "BA",
+        "primary": "#075AAA", "secondary": "#00247D",
+        "accent": "#CC0000", "background": "#FFFFFF",
+        "surface": "#F2F4F7", "text": "#1F2937",
+        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/8/8c/Logo_wordmark_British_Airways.png",
+        "notes": "Brand-inspired blue and red palette.",
+    },
+    "delta-air-lines": {
+        "airline": "Delta Air Lines", "iata": "DL",
+        "primary": "#003366", "secondary": "#C01933",
+        "accent": "#C01933", "background": "#FFFFFF",
+        "surface": "#F2F4F7", "text": "#1F2937",
+        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Delta_logo.svg",
+        "notes": "Brand-inspired navy and red palette.",
+    },
+    "air-france": {
+        "airline": "Air France", "iata": "AF",
+        "primary": "#051039", "secondary": "#0091D2",
+        "accent": "#ED1C24", "background": "#FFFFFF",
+        "surface": "#F2F4F7", "text": "#1F2937",
+        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/4/44/Air_France_Logo.svg",
+        "notes": "Brand-inspired navy, blue and red palette.",
+    },
+}
+
+
+def is_hex_colour(value: str) -> bool:
+    """True for a #RRGGBB hex colour string."""
+    if not isinstance(value, str) or len(value) != 7 or value[0] != "#":
+        return False
+    return all(c in "0123456789abcdefABCDEF" for c in value[1:])
+
+
+def validate_theme(theme: dict) -> list[str]:
+    """Validate a theme dict (starter or custom). Returns error strings.
+
+    Required: every THEME_FIELDS entry present and non-empty, except
+    ``logo_url`` and ``notes`` which may be empty. Colour fields must be
+    #RRGGBB hex; a non-empty logo URL must be http(s). IATA must be 2–3
+    letters.
+    """
+    errors: list[str] = []
+    for field in THEME_FIELDS:
+        if field in ("logo_url", "notes"):
+            continue
+        value = theme.get(field)
+        if value is None or (isinstance(value, str) and not value.strip()):
+            errors.append(f"Missing value: {field}")
+    for field in THEME_HEX_FIELDS:
+        value = theme.get(field)
+        if value is not None and not is_hex_colour(value):
+            errors.append(f"Invalid hex colour for {field}: {value!r}")
+    iata = theme.get("iata")
+    if iata is not None and (not isinstance(iata, str)
+                             or not iata.isalpha()
+                             or not 2 <= len(iata) <= 3):
+        errors.append(f"Invalid IATA code: {iata!r} (2–3 letters)")
+    logo = theme.get("logo_url")
+    if logo and (not isinstance(logo, str)
+                 or not logo.startswith(("http://", "https://"))):
+        errors.append(f"Invalid logo URL: {logo!r} (must be http(s))")
+    return errors
+
+
+def get_theme(theme_id: str | None,
+              custom: dict[str, dict] | None = None) -> dict:
+    """Theme by id (custom themes first); unknown ids fall back to WestJet."""
+    if theme_id and custom and theme_id in custom:
+        return dict(custom[theme_id])
+    if theme_id and theme_id in THEMES:
+        return dict(THEMES[theme_id])
+    return dict(THEMES[DEFAULT_THEME_ID])
+
+
+def theme_css(theme: dict) -> str:
+    """CSS that applies a theme to the Streamlit chrome: sidebar, header,
+    buttons and links. Plotly chart series colours stay on the static
+    WestJet palette (see THEME_SYSTEM.md) — only the chrome is themed."""
+    primary = theme["primary"]
+    secondary = theme["secondary"]
+    accent = theme["accent"]
+    surface = theme["surface"]
+    background = theme["background"]
+    text = theme["text"]
+    return f"""<style>
+/* Theme: {theme['airline']} ({theme['iata']}) — applied from session state. */
+[data-testid="stSidebar"] {{ background-color: {surface}; }}
+[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3 {{ color: {primary}; }}
+[data-testid="stHeader"] {{ background-color: {background}; }}
+.stButton > button, .stDownloadButton > button {{
+    background-color: {primary}; color: #FFFFFF; border-color: {primary}; }}
+.stButton > button:hover, .stDownloadButton > button:hover {{
+    background-color: {secondary}; border-color: {secondary}; }}
+a {{ color: {primary}; }}
+a:hover {{ color: {accent}; }}
+div[data-testid="stRadio"] label:has(input:checked) {{ color: {primary}; font-weight: 700; }}
+h1, h2, h3 {{ color: {text}; }}
+</style>"""
+
+# ---------------------------------------------------------------------------
+# Page registry (brief section 9 — 18 pages, in order — plus the
+# Theme & Branding page, 19th).
 # ---------------------------------------------------------------------------
 
 PAGES: list[tuple[str, str, str]] = [
@@ -78,6 +251,7 @@ PAGES: list[tuple[str, str, str]] = [
     ("governance", "Data Governance", "dashboards.governance"),
     ("simulator", "Scenario Simulator", "dashboards.simulator"),
     ("outcome", "Scenario Outcome", "dashboards.outcome"),
+    ("theme", "Theme & Branding", "dashboards.theme"),
 ]
 
 PAGE_LABELS: list[str] = [label for _, label, _ in PAGES]
@@ -305,6 +479,7 @@ class PageContext:
     prior_year: dict | None = None
     kpi_frame: pd.DataFrame = field(default_factory=pd.DataFrame)
     n_months: int = 0
+    theme: dict = field(default_factory=lambda: dict(THEMES[DEFAULT_THEME_ID]))
 
     def target_for(self, kpi: str) -> float | None:
         return self.targets.get(kpi)
@@ -354,7 +529,7 @@ def _shift_range(model, start, end, *, months: int = 0,
 
 
 def build_context(model, start, end, filters: dict,
-                  report=None) -> PageContext:
+                  report=None, theme: dict | None = None) -> PageContext:
     """Build the page context: engine aggregates for the selected period,
     the immediately preceding equivalent-length period, and the same
     period a year earlier (None where out of range — never zero)."""
@@ -377,6 +552,7 @@ def build_context(model, start, end, filters: dict,
         targets=dict(model.targets), report=report, current=current,
         prior=prior, prior_year=prior_year, kpi_frame=frame,
         n_months=n_months,
+        theme=dict(theme) if theme else dict(THEMES[DEFAULT_THEME_ID]),
     )
 
 

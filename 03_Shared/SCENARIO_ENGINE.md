@@ -400,7 +400,7 @@ not illustrative arithmetic. Both are over the **full 60-month
 baseline (Jan 2022–Dec 2026)** unless stated otherwise, and both are
 SIMULATED values. They are reproduced here because
 `tests/test.js` asserts them against the Python ground truth
-(`preset_results`) and all 18 checks pass.
+(`preset_results`) and all 23 checks pass.
 
 ### 12.1 Fuel Price +20% (S001)
 

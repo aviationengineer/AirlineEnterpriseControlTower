@@ -1,5 +1,5 @@
 """app.py — Streamlit entry point: page routing, global layout, header,
-navigation across the 18 dashboard pages, global filters, DATA STATUS
+navigation across the 19 dashboard pages, global filters, DATA STATUS
 banner and the SYNTHETIC DATA badge.
 
 All data and maths come from the core layer (data/loader, data/validator,
@@ -20,7 +20,14 @@ from components.status import (
     synthetic_badge,
     validation_expander,
 )
-from config import PAGE_LABELS, PAGE_KEY_BY_LABEL, build_context
+from config import (
+    DEFAULT_THEME_ID,
+    PAGE_KEY_BY_LABEL,
+    PAGE_LABELS,
+    build_context,
+    get_theme,
+    theme_css,
+)
 from data.cache import get_model
 from data.loader import (
     MISSING_WORKBOOK_MESSAGE,
@@ -66,22 +73,30 @@ def _load_or_stop():
 
 
 def main() -> None:
+    # Theme: session state (default WestJet); the Theme & Branding page
+    # sets theme_id / custom_themes. The workbook data stays WestJet
+    # synthetic data whatever the theme — only the branding changes.
+    theme_id = st.session_state.get("theme_id", DEFAULT_THEME_ID)
+    custom_themes = st.session_state.get("custom_themes", {})
+    theme = get_theme(theme_id, custom_themes)
+    st.markdown(theme_css(theme), unsafe_allow_html=True)
+
     model, report, workbook = _load_or_stop()
     summary = build_data_quality_summary(report)
 
     synthetic_badge()
-    render_header(model, summary)
+    render_header(model, summary, theme)
     data_status_banner(report)
     validation_expander(report)
 
-    st.sidebar.title("WestJet Control Tower")
+    st.sidebar.title(f"{theme['airline']} Control Tower")
     page_label = st.sidebar.radio(
         "Navigate", PAGE_LABELS, key="nav_page")
     st.sidebar.markdown("---")
     filters = render_global_filters(model, workbook.scenarios)
 
     ctx = build_context(model, filters["start"], filters["end"],
-                        filters, report=report)
+                        filters, report=report, theme=theme)
 
     st.sidebar.markdown("---")
     st.sidebar.caption(
@@ -100,11 +115,11 @@ def main() -> None:
     module.render(model, ctx)
 
     st.markdown("---")
-    st.caption("WestJet Enterprise Aviation Control Tower · SYNTHETIC DATA "
-               "— synthetic/demo values only; not actual WestJet "
-               "performance. KPI values are computed by the centralised "
-               "KPI engine from the input workbook; targets are read from "
-               "the workbook at load time.")
+    st.caption(f"{theme['airline']} Enterprise Aviation Control Tower · "
+               "SYNTHETIC DATA — synthetic/demo values only; not actual "
+               "WestJet performance. KPI values are computed by the "
+               "centralised KPI engine from the input workbook; targets "
+               "are read from the workbook at load time.")
 
 
 if __name__ == "__main__":

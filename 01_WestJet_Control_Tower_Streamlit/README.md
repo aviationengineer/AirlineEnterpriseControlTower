@@ -2,11 +2,12 @@
 
 ## Purpose
 Python + Streamlit implementation of the WestJet Enterprise Aviation
-Intelligence & Control Tower: 18 dashboard pages (Executive Overview,
+Intelligence & Control Tower: 19 dashboard pages (Executive Overview,
 Flight Operations, MRO / Tech Ops, Passenger / Commercial, Revenue
 Management, Network / Route Profitability, Crew / People, Baggage, Cargo,
 Airport / Ground, Fuel, Finance, Ancillary Revenue, Data Platform,
-AI / Data Products, Data Governance, Scenario Simulator, Scenario Outcome),
+AI / Data Products, Data Governance, Scenario Simulator, Scenario Outcome,
+Theme & Branding),
 driven by a centralised KPI engine and a scenario engine over the input
 workbook.
 
@@ -16,7 +17,7 @@ page carries a visible **SYNTHETIC DATA** badge, and every scenario output
 is labelled **SIMULATED**.
 
 ## Status
-Implemented (2026-11-08). All 18 pages, the data loader, schema and
+Implemented (2026-11-08). All 19 pages, the data loader, schema and
 data-quality validation, the canonical model, the KPI engine, the
 scenario engine, the comparison engine, global filters, category toggles
 and CSV exports are built and verified — see [Verification](#verification).
@@ -50,7 +51,7 @@ surfaced, not reconciled. See `03_Shared/DATA_QUALITY_RULES.md`
 and `03_Shared/USER_GUIDE.md` §10 for how to read the validation
 area.
 
-## Pages (18)
+## Pages (19)
 Executive Overview (14 KPI cards: current, previous, YoY %, target,
 variance to target, mini trend, status) · Flight Operations · MRO / Tech
 Ops (11 top KPIs + warning states) · Passenger / Commercial · Revenue
@@ -59,7 +60,8 @@ Baggage · Cargo · Airport / Ground · Fuel (with live S001 scenario support) �
 Finance · Ancillary Revenue · Data Platform (10 primary KPIs + executive
 summary) · AI / Data Products · Data Governance · Scenario Simulator
 (presets S001–S009 + 19 interactive inputs) · Scenario Outcome (Actual vs
-Baseline vs Simulated).
+Baseline vs Simulated) · Theme & Branding (8 starter airline themes +
+custom airlines; branding only, data stays WestJet synthetic).
 
 ## Key behaviours and caveats (all deliberate, per the specs)
 - **No Plan/Forecast data exists** in the workbook: the Actual/Plan/
@@ -122,23 +124,38 @@ Baseline vs Simulated).
 
 ## Verification
 ```sh
-.venv/bin/python -m pytest tests/ -q    # 69 tests
+.venv/bin/python -m pytest tests/ -q    # 79 tests
 .venv/bin/streamlit run app.py --server.port 8502   # then curl http://localhost:8502/ → HTTP 200
 ```
-Result on 2026-11-08: **69 passed**. The suite covers the loader
+Result on 2026-11-08: **79 passed**. The suite covers the loader
 (workbook loading, missing sheet/column, invalid values), the KPI
 engine (Load Factor, RASK, CASM, Yield, D0, D15, Operating Margin,
 MRO and Data Platform metrics), the scenario engine (Fuel +20%,
 Demand +10%/−10%, Maintenance Cost +12%, Labour Cost +7%, Yield +5%
 and the other presets), the validator (DQ/BR rules, quirks, score and
-status), and the UI pages (all 18 pages render, filters, reset).
+status), the theme system (8 starter themes, validation, custom-add
+rejection, theme switching), and the UI pages (all 19 pages render,
+filters, reset).
 Spot values asserted include Dec 2026 Load Factor 0.798508, RASK
 0.128060 and Total Revenue 467,101,901, and the S001/S002 preset
 results over the full 60-month baseline. The HTML/JS package
 independently verifies the same ground truth (`node tests/test.js`,
-18/18 checks) — see its README.
+23/23 checks) — see its README.
 
 ## Theme
+Default theme is WestJet (tokens below, shared by both packages).
+The Theme & Branding page (19th page) offers 8 starter airline themes
+— WestJet, Air Canada, Emirates, Qatar Airways, Lufthansa, British
+Airways, Delta Air Lines, Air France — plus a form to add a custom
+airline. Themes live in `config.py` (`THEMES`, with `validate_theme`,
+`get_theme`, `theme_css`); the choice lives in session state
+(`theme_id`, `custom_themes`) for the session. Logos are remote
+Wikimedia Commons URLs, never files in the repo. The starter themes are
+also kept in the “Airline Themes & Branding” Google Sheet — see
+`03_Shared/THEME_SYSTEM.md` for the full system (fields, persistence
+limits, logo policy, how to add an airline). Theming changes branding
+only; the data stays WestJet synthetic data.
+
 WestJet theme tokens (shared by both packages):
 - Primary yellow: #FFC72C
 - Deep navy: #002855
@@ -148,9 +165,10 @@ WestJet theme tokens (shared by both packages):
 - Restrained blue accent: #2E6EA6
 - Restrained teal accent: #0E7C7B
 Yellow is used strategically (active navigation, KPI highlights, key actions)
-and never excessively. No other airline branding is used anywhere.
+and never excessively.
 
-Streamlit theme tokens live in `.streamlit/config.toml`.
+Streamlit theme tokens live in `.streamlit/config.toml` (WestJet
+fallback; the selected theme is injected as CSS at runtime).
 
 ## Structure map
 - `app.py` — entry point, routing, layout, navigation

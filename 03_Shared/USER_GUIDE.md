@@ -23,7 +23,7 @@ number.
 
 1. [Starting the apps](#1-starting-the-apps)
 2. [The screen at a glance](#2-the-screen-at-a-glance)
-3. [The 18 pages](#3-the-18-pages)
+3. [The 19 pages](#3-the-19-pages)
 4. [Filters — changing what you see](#4-filters--changing-what-you-see)
 5. [KPI-category toggles](#5-kpi-category-toggles)
 6. [Reading a KPI card](#6-reading-a-kpi-card)
@@ -60,7 +60,7 @@ Every page shares the same shell:
   subheader "Operations · Commercial · MRO · Finance · Data · AI",
   plus the **SYNTHETIC DATA** badge, the Data Period, Last Refresh,
   Data Quality and Platform Status.
-- **Left navigation** — the 18 pages, in order (see §3). The active
+- **Left navigation** — the 19 pages, in order (see §3). The active
   page is highlighted in WestJet yellow.
 - **DATA STATUS banner** — Healthy / Warning / Critical, with the
   data-quality score, records loaded, date range, and counts of
@@ -77,7 +77,7 @@ driver → scenario → decision**. Start on the Executive Overview,
 click into a domain page for the detail behind a KPI, then use the
 Simulator to test what would change the result.
 
-## 3. The 18 pages
+## 3. The 19 pages
 
 | # | Page | What it answers | Key content |
 |---|---|---|---|
@@ -99,6 +99,7 @@ Simulator to test what would change the result.
 | 16 | Data Governance | Is our data classified, owned and clean? | Registered Data Assets, Classified Assets, Assets with Owner, Governance Quality, Open Governance Exceptions, Classification / Ownership Coverage |
 | 17 | Scenario Simulator | What if…? | Preset scenarios S001–S009 plus 19 interactive inputs (see §7) |
 | 18 | Scenario Outcome | What does the scenario do, vs actual? | Actual vs Baseline vs Simulated charts for 9 KPIs, 4 impact tiles, SCENARIO ASSUMPTIONS (see §7) |
+| 19 | Theme & Branding | Can I view the tower in another airline's colours? | 8 starter airline themes (WestJet default) + add a custom airline; branding only — the data stays WestJet synthetic data (see THEME_SYSTEM.md) |
 
 ## 4. Filters — changing what you see
 

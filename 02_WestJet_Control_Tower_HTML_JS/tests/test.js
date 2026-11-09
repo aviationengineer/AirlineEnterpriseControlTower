@@ -139,4 +139,45 @@ check('sparkline canvas is wrapped in a fixed-height container', () => {
   assert.ok(/\.sparkline-wrap\s*\{[^}]*height:\s*36px/.test(css), 'wrapper has an explicit 36px height');
 });
 
+// 10. Themes: starter set, validation, applying returns CSS variables.
+const theme = require(path.join(root, 'js', 'theme.js'));
+const themesData = JSON.parse(fs.readFileSync(path.join(root, 'data', 'themes.json'), 'utf8'));
+check('theme file loads 8 starter themes, default WestJet', () => {
+  const res = theme.setThemes(themesData);
+  assert.strictEqual(res.loaded, 8, 'loaded 8 themes, got ' + res.loaded + ': ' + res.errors.join('; '));
+  assert.strictEqual(res.errors.length, 0);
+  assert.strictEqual(theme.getTheme('westjet').airline, 'WestJet');
+  assert.strictEqual(theme.getTheme('no-such-theme').airline, 'WestJet');
+  assert.strictEqual(theme.listThemes().length, 8);
+});
+check('every starter theme validates and has all fields', () => {
+  theme.listThemes().forEach((t) => {
+    assert.deepStrictEqual(theme.validateTheme(t), [], t.id);
+    theme.THEME_FIELDS.forEach((f) => assert.ok(f in t, t.id + ' missing ' + f));
+  });
+});
+check('applyTheme returns the CSS variables for the theme', () => {
+  const vars = theme.applyTheme('emirates');
+  assert.strictEqual(vars['--wj-navy'], '#C8102E');
+  assert.strictEqual(vars['--wj-yellow'], '#D4A017');
+  assert.strictEqual(vars['--wj-blue'], '#A67C37');
+  assert.strictEqual(theme.currentThemeId(), 'emirates');
+  theme.applyTheme('westjet');
+});
+check('custom-add validation rejects bad hex / URL / IATA', () => {
+  const base = {
+    airline: 'Test Airways', iata: 'TA', primary: '#123456',
+    secondary: '#654321', accent: '#ABCDEF', background: '#FFFFFF',
+    surface: '#F2F4F7', text: '#1F2937', logo_url: '', notes: ''
+  };
+  assert.strictEqual(theme.addCustomTheme(Object.assign({}, base, { primary: 'navy' })).ok, false);
+  assert.strictEqual(theme.addCustomTheme(Object.assign({}, base, { logo_url: 'ftp://x/y.svg' })).ok, false);
+  assert.strictEqual(theme.addCustomTheme(Object.assign({}, base, { iata: 'T' })).ok, false);
+  const ok = theme.addCustomTheme(base);
+  assert.strictEqual(ok.ok, true);
+  assert.strictEqual(theme.getTheme(ok.id).airline, 'Test Airways');
+  assert.strictEqual(theme.addCustomTheme(base).ok, false); // duplicate name/IATA
+  assert.strictEqual(theme.removeCustomTheme(ok.id), true);
+});
+
 console.log('\n' + passed + ' checks passed. JS KPI/scenario engines match the Python ground truth.');

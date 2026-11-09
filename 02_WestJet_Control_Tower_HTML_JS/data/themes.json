@@ -1,0 +1,110 @@
+{
+  "default_theme_id": "westjet",
+  "themes": [
+    {
+      "accent": "#FFC72C",
+      "airline": "WestJet",
+      "background": "#FFFFFF",
+      "iata": "WS",
+      "id": "westjet",
+      "logo_url": "https://upload.wikimedia.org/wikipedia/commons/1/16/WestJetLogo2018.svg",
+      "notes": "Default theme. WestJet navy, teal and yellow — the control tower's original palette.",
+      "primary": "#002855",
+      "secondary": "#0E7C7B",
+      "surface": "#F2F4F7",
+      "text": "#1F2937"
+    },
+    {
+      "accent": "#FF6B6B",
+      "airline": "Air Canada",
+      "background": "#FFFFFF",
+      "iata": "AC",
+      "id": "air-canada",
+      "logo_url": "https://upload.wikimedia.org/wikipedia/commons/2/24/Air_Canada_2017.svg",
+      "notes": "Brand-inspired red and black palette.",
+      "primary": "#E31837",
+      "secondary": "#1A1A1A",
+      "surface": "#F2F4F7",
+      "text": "#1F2937"
+    },
+    {
+      "accent": "#D4A017",
+      "airline": "Emirates",
+      "background": "#FFFFFF",
+      "iata": "EK",
+      "id": "emirates",
+      "logo_url": "https://upload.wikimedia.org/wikipedia/commons/1/1d/Emirates_Logo.svg",
+      "notes": "Brand-inspired red and gold palette.",
+      "primary": "#C8102E",
+      "secondary": "#A67C37",
+      "surface": "#F7F3EC",
+      "text": "#1F2937"
+    },
+    {
+      "accent": "#C9A227",
+      "airline": "Qatar Airways",
+      "background": "#FFFFFF",
+      "iata": "QR",
+      "id": "qatar-airways",
+      "logo_url": "https://upload.wikimedia.org/wikipedia/commons/7/75/Qatar_Airways_logo.svg",
+      "notes": "Brand-inspired burgundy and gold palette.",
+      "primary": "#5C0632",
+      "secondary": "#7A1E4A",
+      "surface": "#F7F2F5",
+      "text": "#1F2937"
+    },
+    {
+      "accent": "#FFAD00",
+      "airline": "Lufthansa",
+      "background": "#FFFFFF",
+      "iata": "LH",
+      "id": "lufthansa",
+      "logo_url": "https://upload.wikimedia.org/wikipedia/commons/b/b8/Lufthansa_Logo_2018.svg",
+      "notes": "Brand-inspired dark blue and yellow palette.",
+      "primary": "#05164D",
+      "secondary": "#FFAD00",
+      "surface": "#F2F4F7",
+      "text": "#1F2937"
+    },
+    {
+      "accent": "#CC0000",
+      "airline": "British Airways",
+      "background": "#FFFFFF",
+      "iata": "BA",
+      "id": "british-airways",
+      "logo_url": "https://upload.wikimedia.org/wikipedia/commons/8/8c/Logo_wordmark_British_Airways.png",
+      "notes": "Brand-inspired blue and red palette.",
+      "primary": "#075AAA",
+      "secondary": "#00247D",
+      "surface": "#F2F4F7",
+      "text": "#1F2937"
+    },
+    {
+      "accent": "#C01933",
+      "airline": "Delta Air Lines",
+      "background": "#FFFFFF",
+      "iata": "DL",
+      "id": "delta-air-lines",
+      "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Delta_logo.svg",
+      "notes": "Brand-inspired navy and red palette.",
+      "primary": "#003366",
+      "secondary": "#C01933",
+      "surface": "#F2F4F7",
+      "text": "#1F2937"
+    },
+    {
+      "accent": "#ED1C24",
+      "airline": "Air France",
+      "background": "#FFFFFF",
+      "iata": "AF",
+      "id": "air-france",
+      "logo_url": "https://upload.wikimedia.org/wikipedia/commons/4/44/Air_France_Logo.svg",
+      "notes": "Brand-inspired navy, blue and red palette.",
+      "primary": "#051039",
+      "secondary": "#0091D2",
+      "surface": "#F2F4F7",
+      "text": "#1F2937"
+    }
+  ],
+  "reference_sheet_url": "https://docs.google.com/spreadsheets/d/14JMUnluNef0wlNNcdCkZ6YfkUTBgv7JP09qcRKARTzY"
+}

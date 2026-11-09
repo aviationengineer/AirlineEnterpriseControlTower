@@ -13,13 +13,13 @@ Data Model → KPI Calculation Engine → Scenario Engine → Control Tower.
 
 ## Folders
 - `01_WestJet_Control_Tower_Streamlit/` — Python + Streamlit package
-  (app.py, config.py, data/, models/, services/, dashboards/ [18 pages],
+  (app.py, config.py, data/, models/, services/, dashboards/ [19 pages],
   components/, tests/, requirements.txt, README.md, run.bat)
 - `02_WestJet_Control_Tower_HTML_JS/` — standalone HTML + JavaScript package
-  (index.html, css/, js/, data/sample-data.json, assets/, tests/, README.md)
+  (index.html, css/, js/, data/sample-data.json, data/themes.json, assets/, tests/, README.md)
 - `03_Shared/` — shared specification (KPI dictionary, data model, scenario
   definitions, data-quality rules, wireframe analysis, architecture,
-  scenario engine, deployment, user guide)
+  scenario engine, deployment, user guide, theme system)
 - `docs/` — the original master build prompt, verbatim
   (`docs/MASTER_BUILD_PROMPT.md`, §1–§39, as sent 2026-11-08).
 - `COORDINATOR_BRIEF.md` — the condensed working version of the brief used
@@ -28,13 +28,15 @@ Data Model → KPI Calculation Engine → Scenario Engine → Control Tower.
 
 ## Status
 **Implemented and verified 2026-11-08.** Both packages are built:
-the Streamlit app (18 pages, loader, validator, canonical model, KPI
+the Streamlit app (19 pages, loader, validator, canonical model, KPI
 engine, scenario engine, comparison engine, filters, exports; pytest
-**69 passed**) and the HTML/JS app (same 18 pages, data model, KPI
+**79 passed**) and the HTML/JS app (same 19 pages, data model, KPI
 definitions, formulas, targets, comparison logic, scenario logic,
-data-quality rules and formatting rules; `node --check` 28/28 files,
-`node tests/test.js` **19/19 checks pass** against the Python ground
-truth, `node tests/smoke.js` passes). The four project documents are
+data-quality rules and formatting rules; `node --check` 30/30 files,
+`node tests/test.js` **23/23 checks pass** against the Python ground
+truth, `node tests/smoke.js` passes). Both apps have a 19th page,
+Theme & Branding, with 8 starter airline themes (see
+`03_Shared/THEME_SYSTEM.md`). The four project documents are
 complete in `03_Shared/`: `ARCHITECTURE.md`, `SCENARIO_ENGINE.md`,
 `DEPLOYMENT.md`, `USER_GUIDE.md`. The FX spec discrepancy is
 reconciled (see `03_Shared/SCENARIO_DEFINITIONS.md` §3.9 — the engine

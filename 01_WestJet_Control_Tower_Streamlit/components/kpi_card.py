@@ -79,6 +79,8 @@ def card_data(ctx: PageContext, kpi: str) -> dict:
         "variance_to_target": var,
         "trend": trend,
         "status": _status_text(kpi, current, target, yoy),
+        # KPI-card accent: the active theme's primary colour.
+        "accent": (ctx.theme or {}).get("primary", "#002855"),
     }
 
 
@@ -130,6 +132,8 @@ def measure_card_data(ctx: PageContext, spec: dict) -> dict:
         "yoy": yoy, "target": target, "variance_to_target": var,
         "trend": trend, "status": status,
         "fmt": spec.get("fmt", "number"),
+        # KPI-card accent: the active theme's primary colour.
+        "accent": (ctx.theme or {}).get("primary", "#002855"),
     }
 
 
@@ -166,7 +170,8 @@ def render_kpi_card(data: dict, *, show_trend: bool = True) -> None:
     status_label, _colour = data["status"]
 
     st.markdown(f"**{label}**")
-    st.markdown(f"<span style='font-size:1.5em;font-weight:700;'>"
+    accent = data.get("accent", "#002855")
+    st.markdown(f"<span style='font-size:1.5em;font-weight:700;color:{accent};'>"
                 f"{value_text}</span>", unsafe_allow_html=True)
     st.caption(f"Previous period: {prior_text} · YoY: {yoy_text}")
     st.caption(f"Target: {target_text} · Variance to target: {var_text}")

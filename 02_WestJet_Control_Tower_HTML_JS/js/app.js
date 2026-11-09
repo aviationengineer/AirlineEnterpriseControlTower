@@ -15,7 +15,8 @@
     ['people', 'Crew / People'], ['baggage', 'Baggage'], ['cargo', 'Cargo'], ['ground', 'Airport / Ground'],
     ['fuel', 'Fuel'], ['finance', 'Finance'], ['ancillary', 'Ancillary Revenue'], ['data_platform', 'Data Platform'],
     ['ai_products', 'AI / Data Products'], ['governance', 'Data Governance'],
-    ['simulator', 'Scenario Simulator'], ['outcome', 'Scenario Outcome']
+    ['simulator', 'Scenario Simulator'], ['outcome', 'Scenario Outcome'],
+    ['theme', 'Theme & Branding']
   ];
   var state = {
     data: null, kpiFrame: [], validation: null, loadError: null,
@@ -258,6 +259,11 @@
     renderDataStatus(); renderFilters(); renderPage();
   }
   function init() {
+    // Themes load independently of the workbook data: the header brand
+    // and CSS tokens follow the stored (or default WestJet) theme even
+    // before data arrives. A failed themes.json load keeps the default
+    // WestJet tokens from the stylesheet.
+    if (WJ.theme && WJ.theme.init) WJ.theme.init();
     var hash = (typeof location !== 'undefined' && location.hash || '').replace('#/', '');
     if (PAGES.some(function (p) { return p[0] === hash; })) state.page = hash;
     if (typeof window !== 'undefined') window.addEventListener('hashchange', function () {

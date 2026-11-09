@@ -31,10 +31,33 @@ def synthetic_badge() -> None:
     )
 
 
-def render_header(model, report_summary: dict | None = None) -> None:
-    """Page header: title, subheader, Data Period, Last Refresh,
-    Data Quality, Platform Status (brief section 17)."""
-    st.markdown(f"## {APP_TITLE} &nbsp;·&nbsp; {APP_SUBTITLE}")
+def render_header(model, report_summary: dict | None = None,
+                  theme: dict | None = None) -> None:
+    """Page header: logo + airline name, title, subheader, Data Period,
+    Last Refresh, Data Quality, Platform Status (brief section 17).
+
+    The logo is a remote URL (Wikimedia Commons, verified) — never a file
+    in the repo. If it fails to load, the image hides itself and the
+    airline name (always rendered as text) remains.
+    """
+    from config import DEFAULT_THEME_ID, THEMES
+
+    theme = theme or THEMES[DEFAULT_THEME_ID]
+    name = theme.get("airline", APP_TITLE)
+    logo_url = theme.get("logo_url") or ""
+    if logo_url:
+        col_logo, col_title = st.columns([1, 6])
+        with col_logo:
+            st.markdown(
+                f'<img src="{logo_url}" alt="{name} logo" '
+                "onerror=\"this.style.display='none'\" "
+                'style="max-height:48px;max-width:180px;">',
+                unsafe_allow_html=True,
+            )
+        with col_title:
+            st.markdown(f"## {name.upper()} &nbsp;·&nbsp; {APP_SUBTITLE}")
+    else:
+        st.markdown(f"## {name.upper()} &nbsp;·&nbsp; {APP_SUBTITLE}")
     st.caption(APP_TAGLINE)
     period = "n/a"
     if model.date_min is not None and model.date_max is not None:
