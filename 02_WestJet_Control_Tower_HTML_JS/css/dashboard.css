@@ -78,7 +78,12 @@
 .status-warning { color: var(--wj-amber); }
 .status-critical { color: var(--wj-red); }
 .kpi-note { font-size: 0.78rem; color: var(--wj-grey-text); margin: 6px 0 0; }
-.sparkline { width: 100%; margin-top: 8px; }
+/* Sparkline wrapper: Chart.js with maintainAspectRatio:false sizes the
+ * canvas to its parent, so the parent MUST have an explicit height —
+ * without it the canvas grows without bound, stretching the KPI card
+ * and turning tiny trend variations into giant spikes (seen 2026-11-08). */
+.sparkline-wrap { position: relative; height: 36px; margin-top: 8px; }
+.sparkline { width: 100%; height: 100%; display: block; }
 .panel {
   background: var(--wj-white); border: 1px solid var(--wj-grey-mid); border-radius: var(--wj-radius);
   padding: 14px 16px; margin-bottom: 16px; box-shadow: var(--wj-shadow); min-width: 0;

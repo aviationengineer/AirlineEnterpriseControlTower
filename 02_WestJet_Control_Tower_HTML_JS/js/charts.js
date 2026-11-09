@@ -91,7 +91,7 @@
       '<span>' + esc(yoyTxt) + '</span></div>' +
       '<div class="kpi-meta"><span>Target: ' + esc(fmtTarget(spec.kpi, spec.target)) + '</span><span>' + esc(varTxt) + '</span></div>' +
       '<div class="kpi-status ' + st.cls + '">' + esc(st.label) + '</div>' +
-      (spec.trend && spec.trend.length ? '<canvas id="' + sparkId + '" class="sparkline" height="36" data-spark="' + esc(JSON.stringify(spec.trend.filter(function (v) { return v !== null && v !== undefined; }))) + '"></canvas>' : '') +
+      (spec.trend && spec.trend.length ? '<div class="sparkline-wrap"><canvas id="' + sparkId + '" class="sparkline" data-spark="' + esc(JSON.stringify(spec.trend.filter(function (v) { return v !== null && v !== undefined; }))) + '"></canvas></div>' : '') +
       (note ? '<p class="kpi-note">' + esc(note) + '</p>' : '') +
       '</article>';
   }

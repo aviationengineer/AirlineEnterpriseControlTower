@@ -124,4 +124,19 @@ check('route aggregates rank by profit', () => {
   assert.strictEqual(routes[0].Route_Profit, 124947823);
 });
 
+// 10. Sparkline canvases sit in a fixed-height wrapper (regression:
+// 2026-11-08 the bare canvas with maintainAspectRatio:false grew
+// without bound, stretching KPI cards and turning tiny trend
+// variations into giant spikes).
+const ui = require(path.join(root, 'js', 'charts.js'));
+check('sparkline canvas is wrapped in a fixed-height container', () => {
+  const html = ui.kpiCard({ kpi: 'Load Factor', value: 0.79, target: null, trend: [0.79, 0.80, 0.79, 0.81] });
+  assert.ok(html.includes('<div class="sparkline-wrap"><canvas'), 'canvas wrapped in .sparkline-wrap');
+  assert.ok(html.includes('class="sparkline"'), 'canvas keeps .sparkline class');
+  assert.ok(!html.includes('height="36"'), 'no bare height attribute on the canvas');
+  const css = fs.readFileSync(path.join(root, 'css', 'dashboard.css'), 'utf8');
+  assert.ok(/\.sparkline-wrap\s*\{[^}]*position:\s*relative/.test(css), 'wrapper is relatively positioned');
+  assert.ok(/\.sparkline-wrap\s*\{[^}]*height:\s*36px/.test(css), 'wrapper has an explicit 36px height');
+});
+
 console.log('\n' + passed + ' checks passed. JS KPI/scenario engines match the Python ground truth.');

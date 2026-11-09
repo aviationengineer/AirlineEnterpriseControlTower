@@ -20,10 +20,11 @@ Data Model → KPI Calculation Engine → Scenario Engine → Control Tower.
 - `03_Shared/` — shared specification (KPI dictionary, data model, scenario
   definitions, data-quality rules, wireframe analysis, architecture,
   scenario engine, deployment, user guide)
-- `COORDINATOR_BRIEF.md` — the full project brief (single source of truth).
-  Note: the brief on file is numbered §0–§27; there are no §29 or §38
-  sections in it. The documentation list is brief §23; the layered
-  architecture is §2; future sources are §24.
+- `docs/` — the original master build prompt, verbatim
+  (`docs/MASTER_BUILD_PROMPT.md`, §1–§39, as sent 2026-11-08).
+- `COORDINATOR_BRIEF.md` — the condensed working version of the brief used
+  by the build workstreams (numbered §0–§27; the full prompt lives in
+  `docs/`).
 
 ## Status
 **Implemented and verified 2026-11-08.** Both packages are built:
@@ -32,7 +33,7 @@ engine, scenario engine, comparison engine, filters, exports; pytest
 **69 passed**) and the HTML/JS app (same 18 pages, data model, KPI
 definitions, formulas, targets, comparison logic, scenario logic,
 data-quality rules and formatting rules; `node --check` 28/28 files,
-`node tests/test.js` **18/18 checks pass** against the Python ground
+`node tests/test.js` **19/19 checks pass** against the Python ground
 truth, `node tests/smoke.js` passes). The four project documents are
 complete in `03_Shared/`: `ARCHITECTURE.md`, `SCENARIO_ENGINE.md`,
 `DEPLOYMENT.md`, `USER_GUIDE.md`. The FX spec discrepancy is
