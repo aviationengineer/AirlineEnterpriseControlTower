@@ -51,7 +51,10 @@ def render_header(model, report_summary: dict | None = None,
             st.markdown(
                 f'<img src="{logo_url}" alt="{name} logo" '
                 "onerror=\"this.style.display='none'\" "
-                'style="max-height:48px;max-width:180px;">',
+                'style="max-height:48px;max-width:180px;background:#FFFFFF;'
+                'padding:6px 10px;border-radius:8px;'
+                'border:1px solid rgba(16,24,40,0.12);'
+                'box-shadow:0 1px 3px rgba(16,24,40,0.25);">',
                 unsafe_allow_html=True,
             )
         with col_title:

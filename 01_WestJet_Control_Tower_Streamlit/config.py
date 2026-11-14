@@ -77,7 +77,7 @@ THEME_HEX_FIELDS: list[str] = [
     "primary", "secondary", "accent", "background", "surface", "text",
 ]
 
-DEFAULT_THEME_ID = "westjet"
+DEFAULT_THEME_ID = "emirates"
 
 # ---------------------------------------------------------------------------
 # Analytics (Google Analytics 4) — see analytics.py.
@@ -204,7 +204,7 @@ def validate_theme(theme: dict) -> list[str]:
 
 def get_theme(theme_id: str | None,
               custom: dict[str, dict] | None = None) -> dict:
-    """Theme by id (custom themes first); unknown ids fall back to WestJet."""
+    """Theme by id (custom themes first); unknown ids fall back to the default theme (Emirates)."""
     if theme_id and custom and theme_id in custom:
         return dict(custom[theme_id])
     if theme_id and theme_id in THEMES:

@@ -1,5 +1,5 @@
 """Theme tests: the starter themes are complete and valid, the default
-is WestJet, custom-add validation rejects bad input, and the Theme &
+is Emirates, custom-add validation rejects bad input, and the Theme &
 Branding page renders and applies a selected theme (header + CSS)."""
 
 import sys
@@ -39,7 +39,7 @@ def _authenticated_app() -> AppTest:
 def test_starter_themes_present():
     """8 starter airlines, WestJet first and the default."""
     assert len(THEMES) == 8
-    assert DEFAULT_THEME_ID == "westjet"
+    assert DEFAULT_THEME_ID == "emirates"
     assert list(THEMES)[0] == "westjet"
     assert {t["iata"] for t in THEMES.values()} == {
         "WS", "AC", "EK", "QR", "LH", "BA", "DL", "AF"}
@@ -75,10 +75,10 @@ def test_validate_theme_rejects_bad_url_and_iata():
     assert any("primary" in e for e in validate_theme(bad4))
 
 
-def test_get_theme_falls_back_to_westjet():
+def test_get_theme_falls_back_to_default():
     assert get_theme("emirates")["airline"] == "Emirates"
-    assert get_theme("no-such-theme")["airline"] == "WestJet"
-    assert get_theme(None)["airline"] == "WestJet"
+    assert get_theme("no-such-theme")["airline"] == "Emirates"
+    assert get_theme(None)["airline"] == "Emirates"
     custom = {"my-airline": dict(THEMES["westjet"], airline="My Airline",
                                  iata="MY")}
     assert get_theme("my-airline", custom)["airline"] == "My Airline"

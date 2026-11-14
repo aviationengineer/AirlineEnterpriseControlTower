@@ -89,7 +89,7 @@
  * nav, buttons and KPI-card accents all read the --wj-* tokens, so a
  * theme applied to :root re-skins the whole app. */
 .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
-.brand-logo { max-height: 48px; max-width: 180px; flex: none; }
+.brand-logo { max-height: 48px; max-width: 180px; flex: none; background: #FFFFFF; padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(16, 24, 40, 0.12); box-shadow: 0 1px 3px rgba(16, 24, 40, 0.25); }
 .theme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 8px; }
 .theme-card { background: var(--wj-white); border: 1px solid var(--wj-grey-mid); border-top: 4px solid var(--wj-navy); border-radius: var(--wj-radius); padding: 12px 14px; text-align: left; cursor: pointer; font: inherit; color: inherit; box-shadow: var(--wj-shadow); }
 .theme-card:hover { outline: 2px solid var(--wj-yellow); }
@@ -141,3 +141,15 @@
 .sim-preset select { padding: 6px 8px; min-width: 280px; }
 .upload-label { cursor: pointer; color: var(--wj-navy); font-weight: 600; }
 .chart-fallback { font-size: 0.85rem; }
+
+/* Authentication gate: full-screen login overlay (js/auth.js). */
+.auth-overlay { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--wj-navy); }
+.auth-card { background: var(--wj-white); color: var(--wj-charcoal); border-radius: var(--wj-radius); padding: 28px 32px; width: 100%; max-width: 420px; box-shadow: 0 12px 40px rgba(0,0,0,0.35); }
+.auth-card h1 { font-size: 1.25rem; margin: 0 0 4px; color: var(--wj-navy); }
+.auth-card .auth-sub { margin: 0 0 8px; color: var(--wj-grey-text); font-size: 0.95rem; }
+.auth-card label { display: block; font-weight: 600; margin: 12px 0 4px; }
+.auth-card input[type="password"] { width: 100%; padding: 10px 12px; font-size: 1rem; border: 1px solid var(--wj-grey-mid); border-radius: var(--wj-radius); box-sizing: border-box; font: inherit; }
+.auth-card .btn { margin-top: 16px; width: 100%; padding: 10px; font-size: 1rem; }
+.auth-error { color: var(--wj-red); font-weight: 600; margin: 8px 0 0; }
+.auth-note { margin: 16px 0 0; font-size: 0.85rem; color: var(--wj-grey-text); }
+body.auth-locked .app-header, body.auth-locked .app-shell { visibility: hidden; }

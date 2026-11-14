@@ -44,8 +44,14 @@ number.
 - **Sign-in (Streamlit app only):** the app asks for a shared
   password before any page loads. The password is set by the app
   owner in Streamlit Cloud Secrets (`APP_PASSWORD`); sign out from
-  the sidebar button when done. The HTML/JS app has no sign-in. See
+  the sidebar button when done. See
   `01_WestJet_Control_Tower_Streamlit/README.md` (Authentication).
+- **Sign-in (HTML/JS app):** the app asks for the same kind of
+  shared password before any page loads. The password's SHA-256 hash
+  is set by the app owner in `data/auth.json` (hash it with
+  `tools/make-password-hash.html`); sign out from the header button
+  when done. The session lasts only for the current tab. See
+  `02_WestJet_Control_Tower_HTML_JS/README.md` (Authentication).
 - **HTML/JS app:** see `DEPLOYMENT.md` §3 — from the HTML/JS
   package folder, run `python3 -m http.server 8000`, then open
   http://localhost:8000/. Do not open `index.html` directly: the
@@ -104,7 +110,7 @@ Simulator to test what would change the result.
 | 16 | Data Governance | Is our data classified, owned and clean? | Registered Data Assets, Classified Assets, Assets with Owner, Governance Quality, Open Governance Exceptions, Classification / Ownership Coverage |
 | 17 | Scenario Simulator | What if…? | Preset scenarios S001–S009 plus 19 interactive inputs (see §7) |
 | 18 | Scenario Outcome | What does the scenario do, vs actual? | Actual vs Baseline vs Simulated charts for 9 KPIs, 4 impact tiles, SCENARIO ASSUMPTIONS (see §7) |
-| 19 | Theme & Branding | Can I view the tower in another airline's colours? | 8 starter airline themes (WestJet default) + add a custom airline; branding only — the data stays WestJet synthetic data (see THEME_SYSTEM.md) |
+| 19 | Theme & Branding | Can I view the tower in another airline's colours? | 8 starter airline themes (Emirates default) + add a custom airline; branding only — the data stays WestJet synthetic data (see THEME_SYSTEM.md) |
 
 ## 4. Filters — changing what you see
 

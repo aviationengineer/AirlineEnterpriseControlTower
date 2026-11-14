@@ -1,7 +1,7 @@
 /* theme.js — airline theme engine: theme data, validation, applying a
  * theme (CSS custom properties on :root + header brand), persistence.
  * The 8 starter themes live in data/themes.json; this module holds no
- * theme data itself except the field list and the WestJet default.
+ * theme data itself except the field list and the Emirates default.
  * Logos are remote URLs only (Wikimedia Commons, verified) — no logo
  * binaries in the repo; a missing or unreachable logo falls back to the
  * airline name. Custom themes are stored in localStorage in the browser
@@ -192,7 +192,7 @@
     return true;
   }
   /* Load themes.json, restore the stored selection and any custom themes,
-   * and apply the result. Never throws: on failure the default WestJet
+   * and apply the result. Never throws: on failure the default Emirates
    * CSS tokens stay in place. */
   function init(url) {
     restoreCustoms();
