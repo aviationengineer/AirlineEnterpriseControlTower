@@ -1,0 +1,104 @@
+/* print.css — PDF snapshot printing (js/pdf-report.js).
+ * On screen the generated report (#pdf-report) is never shown and
+ * nothing else changes. When printing (browser Print / Save as PDF),
+ * ONLY #pdf-report is visible: a cover page, one page per dashboard
+ * section, and the Scenario Summary. Table headers use the active
+ * theme's primary colour via the --wj-navy custom property that the
+ * theme engine sets on :root. */
+
+@media screen {
+  #pdf-report { display: none; }
+}
+
+@page {
+  size: A4 portrait;
+  margin: 14mm 12mm 16mm 12mm;
+}
+
+@media print {
+  body > *:not(#pdf-report) { display: none !important; }
+
+  #pdf-report {
+    display: block;
+    color: #1F2937;
+    font-family: var(--wj-font-family, "Segoe UI", Arial, sans-serif);
+    font-size: 10.5pt;
+    line-height: 1.4;
+  }
+
+  /* Cover */
+  .pdf-cover { padding-top: 10mm; }
+  .pdf-cover-brand {
+    background: var(--wj-navy, #002855);
+    color: #FFFFFF;
+    font-size: 20pt;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 8mm 6mm;
+    border-radius: 3mm;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .pdf-cover-title { font-size: 17pt; margin: 8mm 0 2mm; color: var(--wj-navy, #002855); }
+  .pdf-cover-sub { font-size: 13pt; margin: 0 0 6mm; color: #475467; }
+  .pdf-synthetic {
+    display: inline-block;
+    background: var(--wj-yellow, #FFC72C);
+    color: #002855;
+    font-weight: 700;
+    font-size: 10pt;
+    letter-spacing: 0.08em;
+    padding: 1.2mm 3mm;
+    border-radius: 1mm;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .pdf-cover-meta { border-collapse: collapse; margin-top: 6mm; min-width: 60%; }
+  .pdf-cover-meta th, .pdf-cover-meta td {
+    text-align: left;
+    padding: 1.6mm 4mm 1.6mm 0;
+    border-bottom: 0.2mm solid #D0D5DD;
+    font-size: 10.5pt;
+  }
+  .pdf-cover-meta th { color: #475467; font-weight: 600; white-space: nowrap; }
+  .pdf-cover-note { margin-top: 6mm; color: #475467; font-size: 9.5pt; max-width: 90%; }
+
+  /* Sections: one per printed page */
+  .pdf-section { break-before: page; page-break-before: always; }
+  .pdf-section-title { font-size: 14pt; margin: 0 0 1mm; color: var(--wj-navy, #002855); }
+  .pdf-section-sub { margin: 0 0 3mm; color: #475467; font-size: 10pt; }
+  .pdf-section-note { margin: 0 0 3mm; color: #475467; font-size: 9.5pt; font-style: italic; }
+
+  /* Tables */
+  .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 5mm; }
+  .pdf-table th, .pdf-table td {
+    border: 0.2mm solid #D0D5DD;
+    padding: 1.5mm 2.5mm;
+    text-align: left;
+    vertical-align: top;
+  }
+  .pdf-table thead { display: table-header-group; }
+  .pdf-table thead th {
+    background: var(--wj-navy, #002855);
+    color: #FFFFFF;
+    font-weight: 600;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .pdf-table tbody tr { break-inside: avoid; page-break-inside: avoid; }
+  .pdf-table tbody tr:nth-child(even) { background: #F9FAFB; }
+
+  /* Repeats on every printed page (fixed elements repeat in print). */
+  .pdf-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-top: 0.3mm solid var(--wj-navy, #002855);
+    padding-top: 1.5mm;
+    font-size: 8pt;
+    color: #475467;
+  }
+
+  a { color: inherit; text-decoration: none; }
+}

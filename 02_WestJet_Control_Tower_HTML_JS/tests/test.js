@@ -129,6 +129,7 @@ check('route aggregates rank by profit', () => {
 // without bound, stretching KPI cards and turning tiny trend
 // variations into giant spikes).
 const ui = require(path.join(root, 'js', 'charts.js'));
+const auth = require(path.join(root, 'js', 'auth.js'));
 check('sparkline canvas is wrapped in a fixed-height container', () => {
   const html = ui.kpiCard({ kpi: 'Load Factor', value: 0.79, target: null, trend: [0.79, 0.80, 0.79, 0.81] });
   assert.ok(html.includes('<div class="sparkline-wrap"><canvas'), 'canvas wrapped in .sparkline-wrap');
@@ -180,4 +181,243 @@ check('custom-add validation rejects bad hex / URL / IATA', () => {
   assert.strictEqual(theme.removeCustomTheme(ok.id), true);
 });
 
-console.log('\n' + passed + ' checks passed. JS KPI/scenario engines match the Python ground truth.');
+// 12. PDF snapshot report (js/pdf-report.js): 18 sections + scenario
+// summary, cover carries the active theme, values use the app's own
+// formatting, and the print stylesheet isolates #pdf-report.
+const pdfReport = require(path.join(root, 'js', 'pdf-report.js'));
+function makePdfCtx() {
+  return {
+    data: data, domains: data.domains, targets: data.targets, definitions: data.kpi_definitions,
+    scenarios: data.scenarios, validation: validator.validateData(data),
+    filters: { from: '2022-01', to: '2026-12', route: 'All routes', categories: [] },
+    kpiFrame: frame, latestMonth: '2026-12',
+    latest: frame[frame.length - 1], prior: frame[frame.length - 2],
+    domainValue: function (dom, col, month) {
+      let found = null;
+      (data.domains[dom] || []).forEach((r) => { if (r.Month === month) found = r[col]; });
+      return found === null || found === undefined ? null : Number(found);
+    },
+    routeAggregates: data.route_aggregates.slice().sort((a, b) => b.Route_Profit - a.Route_Profit),
+    agg: kpi.aggregateKpis(data.domains, '2022-01', '2026-12'),
+    scenario: { presetId: null, inputs: scenario.defaultInputs() },
+    scenarioResult: null
+  };
+}
+check('pdf report: 18 sections in app order, Theme & Branding excluded', () => {
+  assert.strictEqual(pdfReport.SECTIONS.length, 18);
+  assert.ok(!pdfReport.SECTIONS.some((s) => s.id === 'theme'), 'theme page excluded');
+  assert.strictEqual(pdfReport.SECTIONS[0].id, 'executive');
+  assert.strictEqual(pdfReport.SECTIONS[17].id, 'outcome');
+});
+check('pdf report: 18 section headings + scenario section, cover names the active airline', () => {
+  theme.applyTheme('emirates');
+  const html = pdfReport.buildReportHtml(makePdfCtx(), { generatedAt: new Date(2026, 10, 14, 14, 22) });
+  assert.strictEqual((html.match(/<section class="pdf-section/g) || []).length, 19, '18 data sections + scenario section');
+  assert.strictEqual((html.match(/data-page="/g) || []).length, 18, 'one section per data page');
+  assert.strictEqual((html.match(/class="pdf-section-title"/g) || []).length, 19, 'every section has a heading');
+  assert.ok(html.includes('Emirates (EK)'), 'cover names the active airline + IATA');
+  assert.ok(html.includes('PDF Snapshot Report'), 'cover has the report title');
+  assert.ok(html.includes('SYNTHETIC DATA'), 'cover/footer carry the SYNTHETIC DATA marker');
+  assert.ok(html.includes('Scenario Summary'), 'scenario summary section present');
+  data.scenarios.forEach((s) => assert.ok(html.includes(s['Scenario Name']), 'scenario listed: ' + s['Scenario Name']));
+  assert.ok(html.includes('95%'), 'cover shows Data Quality as in the header');
+  assert.ok(html.includes('Warning'), 'cover shows Platform Status');
+  theme.applyTheme('westjet');
+});
+check('pdf report: KPI rows use the app formatting (Dec 2026)', () => {
+  const ctx = makePdfCtx();
+  const byName = {};
+  pdfReport.sectionRows(ctx, 'executive').forEach((r) => { byName[r.name] = r; });
+  assert.strictEqual(byName['Total Revenue'].value, '$467.1m', 'Total Revenue uses fmtMoney, as the Executive card');
+  assert.strictEqual(byName['Load Factor'].value, '79.85%', 'Load Factor uses fmtKpiValue (2dp %)');
+  assert.strictEqual(byName['Load Factor'].target, '83.00%', 'target formatted via fmtTarget');
+  const nov26 = frame.find((r) => r.Month === '2026-11');
+  assert.strictEqual(byName['Load Factor'].change, ui.fmtPP(dec26['Load Factor'] - nov26['Load Factor'], 1), 'rate KPI change is in pp');
+  assert.strictEqual(byName['Total Revenue'].change, ui.fmtSignedPct(comparison.pctChange(dec26['Total Revenue'], nov26['Total Revenue']), 1), 'money KPI change is %');
+  assert.strictEqual(byName['Passenger Volume'].value, ui.fmtNum(ctx.domainValue('passenger', 'Passengers', '2026-12')), 'level measure mirrors levelCard formatting');
+  assert.strictEqual(byName['Passenger Volume'].target, 'n/a', 'level measures have no target');
+  assert.strictEqual(pdfReport.sectionRows(ctx, 'outcome').length, 9, 'outcome section has the 9 outcome metrics');
+  assert.strictEqual(pdfReport.sectionRows(ctx, 'simulator').length, 9, 'simulator section has the 9 simulated KPIs');
+  assert.ok(pdfReport.sectionRows(ctx, 'simulator').every((r) => r.change === 'n/a'), 'no scenario: simulator changes are n/a');
+});
+check('pdf report: snapshot filename format', () => {
+  assert.strictEqual(pdfReport.snapshotName(new Date(2026, 10, 14, 9, 5)), 'control-tower-snapshot-20261114-0905');
+  assert.ok(/^control-tower-snapshot-\d{8}-\d{4}$/.test(pdfReport.snapshotName(new Date())));
+});
+check('print stylesheet hides everything but #pdf-report when printing', () => {
+  const css = fs.readFileSync(path.join(root, 'css', 'print.css'), 'utf8');
+  assert.ok(css.includes('@media print'), 'has @media print');
+  assert.ok(/body > \*:not\(#pdf-report\)\s*\{[^}]*display:\s*none/.test(css), 'non-report content hidden in print');
+  assert.ok(/@media screen\s*\{[^}]*#pdf-report\s*\{[^}]*display:\s*none/.test(css), 'report hidden on screen');
+  assert.ok(css.includes('@page'), 'page setup present');
+  assert.ok(css.includes('var(--wj-navy'), 'table headers use the active theme colour');
+  const idx = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  assert.ok(idx.includes('css/print.css'), 'index.html links print.css');
+  assert.ok(idx.includes('id="pdf-report-btn"'), 'header has the PDF Report button');
+  assert.ok(idx.includes('js/pdf-report.js'), 'index.html loads pdf-report.js');
+});
+
+// 11. Authentication gate (js/auth.js): SHA-256, hash handling, session.
+check('sha256 matches known vectors', () => {
+  assert.strictEqual(auth.sha256Hex(''), 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
+  assert.strictEqual(auth.sha256Hex('abc'), 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
+  assert.strictEqual(auth.sha256Hex('password'), '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8');
+  assert.strictEqual(auth.sha256Hex('test-password'), 'c638833f69bbfb3c267afa0a74434812436b8f08a81fd263c6be6871de4f1265');
+});
+check('timing-safe comparison is exact and length-sensitive', () => {
+  const h = 'a'.repeat(64);
+  assert.strictEqual(auth.timingSafeEqual(h, h), true);
+  assert.strictEqual(auth.timingSafeEqual(h, 'b'.repeat(64)), false);
+  assert.strictEqual(auth.timingSafeEqual('abc', 'abcd'), false);
+  assert.strictEqual(auth.timingSafeEqual('abc', 123), false);
+});
+check('isConfigured accepts only a 64-hex hash', () => {
+  assert.strictEqual(auth.isConfigured('a'.repeat(64)), true);
+  assert.strictEqual(auth.isConfigured('A'.repeat(64)), true); // uppercase accepted, normalised on load
+  assert.strictEqual(auth.isConfigured(''), false);
+  assert.strictEqual(auth.isConfigured(null), false);
+  assert.strictEqual(auth.isConfigured('xyz'), false);
+  assert.strictEqual(auth.isConfigured('a'.repeat(63)), false);
+});
+check('correct password unlocks, wrong password denied', () => {
+  const stored = auth.sha256Hex('test-password');
+  assert.strictEqual(auth.verifyPassword('test-password', stored), true);
+  assert.strictEqual(auth.verifyPassword('wrong-password', stored), false);
+  assert.strictEqual(auth.verifyPassword('test-password', ''), false);
+  assert.strictEqual(auth.verifyPassword('test-password', 'not-a-hash'), false);
+  assert.strictEqual(auth.verifyPassword('', stored), false);
+  assert.strictEqual(auth.resolveConfig({ password_sha256: stored }).status, 'configured');
+  assert.strictEqual(auth.resolveConfig({ password_sha256: '' }).status, 'not-configured');
+  assert.strictEqual(auth.resolveConfig({}).status, 'not-configured');
+  assert.strictEqual(auth.resolveConfig(null).status, 'not-configured');
+});
+function fakeStorage() {
+  const s = {};
+  return {
+    getItem: (k) => (k in s ? s[k] : null),
+    setItem: (k, v) => { s[k] = String(v); },
+    removeItem: (k) => { delete s[k]; }
+  };
+}
+check('session flag persists across a simulated page load, sign-out clears it', () => {
+  const storage = fakeStorage();
+  assert.strictEqual(auth.isUnlocked(storage), false);
+  assert.strictEqual(auth.attemptLogin('test-password', auth.sha256Hex('test-password'), storage), true);
+  assert.strictEqual(auth.isUnlocked(storage), true);
+  // Simulated reload in the same tab: same storage object, fresh check.
+  assert.strictEqual(auth.isUnlocked(storage), true);
+  // A new tab has fresh storage.
+  assert.strictEqual(auth.isUnlocked(fakeStorage()), false);
+  auth.signOut(storage);
+  assert.strictEqual(auth.isUnlocked(storage), false);
+  assert.strictEqual(auth.attemptLogin('wrong-password', auth.sha256Hex('test-password'), storage), false);
+  assert.strictEqual(auth.isUnlocked(storage), false);
+});
+
+/* Minimal DOM stub for the gate flow (requireAuth renders an overlay). */
+class StubEl {
+  constructor(tag) {
+    this.tagName = (tag || 'div').toUpperCase();
+    this.children = [];
+    this.innerHTML = '';
+    this.textContent = '';
+    this.hidden = false;
+    this.value = '';
+    this.style = {};
+    this.className = '';
+    this.id = '';
+    this._classes = new Set();
+    this.classList = {
+      add: (c) => this._classes.add(c),
+      remove: (c) => this._classes.delete(c),
+      contains: (c) => this._classes.has(c)
+    };
+    this._listeners = {};
+    this._removed = false;
+  }
+  addEventListener(type, fn) { (this._listeners[type] = this._listeners[type] || []).push(fn); }
+  appendChild(child) { this.children.push(child); return child; }
+  remove() { this._removed = true; }
+  setAttribute(k, v) { this[k] = v; }
+  focus() {}
+}
+function makeStubDoc() {
+  const doc = {
+    body: new StubEl('body'),
+    _signOut: new StubEl('button'),
+    createElement(tag) { return new StubEl(tag); },
+    getElementById(id) { return id === 'sign-out-btn' ? doc._signOut : null; }
+  };
+  return doc;
+}
+async function checkAsync(name, fn) { await fn(); passed++; console.log('ok - ' + name); }
+
+(async () => {
+  await checkAsync('empty hash blocks with the not-configured message', async () => {
+    const doc = makeStubDoc();
+    let unlocked = false, blocked = null;
+    const res = await auth.requireAuth({
+      document: doc, storage: fakeStorage(),
+      fetchJson: async () => ({ password_sha256: '' }),
+      onUnlock: () => { unlocked = true; },
+      onBlocked: (s) => { blocked = s; }
+    });
+    assert.strictEqual(res.status, 'not-configured');
+    assert.strictEqual(unlocked, false);
+    assert.strictEqual(blocked, 'not-configured');
+    assert.ok(res.handle.overlay, 'overlay rendered');
+    assert.ok(res.handle.messageEl.textContent.includes('not configured'), 'message shown: ' + res.handle.messageEl.textContent);
+    assert.ok(doc.body.classList.contains('auth-locked'), 'app shell hidden while blocked');
+  });
+  await checkAsync('missing auth.json blocks (fail closed)', async () => {
+    const doc = makeStubDoc();
+    let unlocked = false;
+    const res = await auth.requireAuth({
+      document: doc, storage: fakeStorage(),
+      fetchJson: async () => { throw new Error('404'); },
+      onUnlock: () => { unlocked = true; }
+    });
+    assert.strictEqual(res.status, 'not-configured');
+    assert.strictEqual(unlocked, false);
+    assert.ok(res.handle.messageEl.textContent.includes('not configured'));
+  });
+  await checkAsync('login flow: wrong password denied, correct password unlocks', async () => {
+    const doc = makeStubDoc();
+    const storage = fakeStorage();
+    const stored = auth.sha256Hex('test-password');
+    let unlocked = false;
+    const res = await auth.requireAuth({
+      document: doc, storage,
+      fetchJson: async () => ({ password_sha256: stored }),
+      onUnlock: () => { unlocked = true; }
+    });
+    assert.strictEqual(res.status, 'locked');
+    assert.strictEqual(unlocked, false);
+    assert.ok(res.handle.input, 'password input rendered');
+    assert.strictEqual(res.handle.submit('wrong-password'), false);
+    assert.strictEqual(unlocked, false);
+    assert.strictEqual(auth.isUnlocked(storage), false);
+    assert.ok(res.handle.errorEl.textContent.includes('Incorrect password'));
+    assert.strictEqual(res.handle.submit('test-password'), true);
+    assert.strictEqual(unlocked, true);
+    assert.strictEqual(auth.isUnlocked(storage), true);
+    assert.strictEqual(res.handle.overlay._removed, true, 'overlay removed after unlock');
+    assert.strictEqual(doc._signOut.hidden, false, 'sign-out button shown after unlock');
+  });
+  await checkAsync('existing session passes through without prompting', async () => {
+    const doc = makeStubDoc();
+    const storage = fakeStorage();
+    auth.markUnlocked(storage);
+    let unlocked = false;
+    const res = await auth.requireAuth({
+      document: doc, storage,
+      fetchJson: async () => ({ password_sha256: auth.sha256Hex('test-password') }),
+      onUnlock: () => { unlocked = true; }
+    });
+    assert.strictEqual(res.status, 'unlocked');
+    assert.strictEqual(unlocked, true);
+    assert.strictEqual(res.handle, null);
+    assert.strictEqual(doc._signOut.hidden, false);
+  });
+  console.log('\n' + passed + ' checks passed. JS KPI/scenario engines match the Python ground truth.');
+})();

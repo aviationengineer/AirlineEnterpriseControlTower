@@ -10,6 +10,7 @@ this file only wires config, components and dashboards together.
 from __future__ import annotations
 
 import importlib
+from datetime import datetime
 
 import streamlit as st
 
@@ -75,6 +76,40 @@ def _load_or_stop():
         st.stop()
 
 
+def _render_pdf_download(model, summary, theme, workbook, ctx) -> None:
+    """Sidebar: generate a PDF snapshot of all sections, then download it.
+
+    Generation runs the preset scenarios through the existing scenario
+    engine for the selected period and renders services/pdf_report.py.
+    The bytes are kept in session state so the download button survives
+    reruns.
+    """
+    if st.sidebar.button("Generate PDF snapshot", key="pdf_generate"):
+        from models.scenario_model import load_scenario_definitions
+        from services.pdf_report import build_pdf_report
+        from services.scenario_engine import run_all_presets
+
+        definitions = load_scenario_definitions(workbook.scenarios)
+        results = run_all_presets(model, workbook.scenarios,
+                                  ctx.start, ctx.end)
+        st.session_state["pdf_snapshot"] = build_pdf_report(
+            model, summary, theme,
+            scenario_results={"definitions": definitions,
+                              "results": results})
+        st.session_state["pdf_snapshot_name"] = (
+            "control-tower-snapshot-"
+            + datetime.now().strftime("%Y%m%d-%H%M") + ".pdf")
+    pdf_bytes = st.session_state.get("pdf_snapshot")
+    if pdf_bytes:
+        st.sidebar.download_button(
+            "Download PDF snapshot",
+            data=pdf_bytes,
+            file_name=st.session_state.get(
+                "pdf_snapshot_name", "control-tower-snapshot.pdf"),
+            mime="application/pdf",
+            key="pdf_download")
+
+
 def main() -> None:
     # Password gate (shared password, fail closed): runs before any data
     # loading or analytics, so unauthenticated visitors are neither
@@ -113,6 +148,9 @@ def main() -> None:
 
     ctx = build_context(model, filters["start"], filters["end"],
                         filters, report=report, theme=theme)
+
+    st.sidebar.markdown("---")
+    _render_pdf_download(model, summary, theme, workbook, ctx)
 
     st.sidebar.markdown("---")
     st.sidebar.caption(
