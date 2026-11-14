@@ -102,7 +102,7 @@ THEMES: dict[str, dict[str, str]] = {
         "accent": "#FFC72C", "background": "#FFFFFF",
         "surface": "#F2F4F7", "text": "#1F2937",
         "logo_url": "https://upload.wikimedia.org/wikipedia/commons/1/16/WestJetLogo2018.svg",
-        "notes": "Default theme. WestJet navy, teal and yellow — "
+        "notes": "WestJet navy, teal and yellow — "
                  "the control tower's original palette.",
     },
     "air-canada": {
@@ -119,7 +119,7 @@ THEMES: dict[str, dict[str, str]] = {
         "accent": "#D4A017", "background": "#FFFFFF",
         "surface": "#F7F3EC", "text": "#1F2937",
         "logo_url": "https://upload.wikimedia.org/wikipedia/commons/1/1d/Emirates_Logo.svg",
-        "notes": "Brand-inspired red and gold palette.",
+        "notes": "Default theme. Brand-inspired red and gold palette.",
     },
     "qatar-airways": {
         "airline": "Qatar Airways", "iata": "QR",
